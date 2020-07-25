@@ -14,10 +14,14 @@ Vue.config.productionTip = false
 
 window.Hub = new Vue()
 
+import store from './store';
+
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

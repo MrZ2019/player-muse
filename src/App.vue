@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <mu-appbar title="首页">
+    <mu-appbar :title="listName" :style="styleObj">
       <mu-icon-button icon="menu" slot="left" @click.native="open = true" />
       <mu-icon-button icon="refresh" slot="right"  @click='refresh' v-show="!isStar"/>
       <mu-icon-button :icon="icon" slot="right"  @click='goStar'/>
       <mu-icon-menu icon="more_vert" slot="right">
-        <mu-menu-item title="菜单 12" />
-        <mu-menu-item title="菜单 2" />
+        <mu-menu-item title="主题色" @click.native="openPicker"/>
+        <mu-menu-item title="新建列表"  @click.native="createList"/>
+        <mu-menu-item title="删除当前列表"  @click.native="removePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="菜单 3" />
         <mu-menu-item title="菜单 4" />
         <mu-menu-item title="退出" @click.native="quit" />
@@ -23,15 +24,30 @@
 
     <mu-drawer :open="open" :docked="docked" @close="toggle()">
       <mu-list @itemClick="docked ? '' : toggle()">
-        <mu-list-item title="Menu Item 1"/>
-        <mu-list-item title="Menu Item 2"/>
-        <mu-list-item title="Menu Item 3"/>
+        <mu-list-item  @click.native="changeListToAll()" >全部歌曲1</mu-list-item >
+        <mu-list-item :title="item.name" v-for="(item, index) in playlist" @click="changeList(index, item)" />
         <mu-list-item v-if="docked" @click.native="open = false" title="Close"/>
       </mu-list>
     </mu-drawer>
+
+    <mu-dialog :open="dialog" title="主题色" @close="closePicker">
+
+        <picker  v-model="colors"></picker>
+        <mu-flat-button slot="actions" @click="closePicker" primary label="取消"/>
+        <mu-flat-button slot="actions" primary @click="confirmPicker" label="确定"/>
+      </mu-dialog>
+
+
+      <DlgAddPlayList ref="dlgAddPlayList"></DlgAddPlayList>
   </div>
 </template>
 <script>
+
+import {mapState, mapMutations} from 'vuex'
+import Compact from 'vue-color/src/components/Compact';
+
+import DlgAddPlayList from './components/dialog/DlgAddPlayList'
+
 export default {
   name: 'App',
   data() {
@@ -39,8 +55,24 @@ export default {
       docked: false,
       open: false,
       icon: 'star',
-      isStar: false
+      isStar: false,
+      dialog: false,
+      colors: [],
+      styleObj: {
+        background: ''
+      }
     }
+  },
+  computed: {
+      ...mapState(['playlist', 'curListIndex']
+      ),
+      listName() {
+        if (this.$store.state.curListIndex === -1) {
+          return '全部歌曲'
+        } else {
+          return this.$store.state.playlist[this.$store.state.curListIndex].name;
+        }
+      }
   },
   watch: {
     '$route.path'(newVal, oldVal) {
@@ -53,8 +85,40 @@ export default {
       }
     }
   },
-  methods: {
+  components:{
+    'picker': Compact,DlgAddPlayList
+  },
+  mounted() {
+    let bg = localStorage.getItem('background');
 
+    this.styleObj.background = bg;
+
+    this.$store.commit('getPlayList')
+  },
+  methods: {
+    ...mapMutations(['removePlayList']),
+    changeListToAll() {
+      this.$store.commit('changeList', -1)
+    },
+    changeList(index, item) {
+      this.$store.commit('changeList', index, item)
+    },
+    createList() {
+      this.$refs.dlgAddPlayList.showDialog()
+    },
+    openPicker() {
+      this.dialog = true;
+    },
+    closePicker() {
+      this.dialog = false;
+    },
+    confirmPicker() {
+      this.dialog = false;
+      this.styleObj.background = this.colors.hex;
+
+      localStorage.setItem('background', this.colors.hex)
+
+    },
     toggle() {
       this.open = !this.open
     },
@@ -77,7 +141,7 @@ export default {
     refresh() {
       window.Hub.$emit('refresh')
     },
-    
+
     quit() {
       callplus("quit")
     },
