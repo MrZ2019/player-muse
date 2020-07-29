@@ -1,5 +1,7 @@
 <template>
   <div class="container">
+
+    <mu-text-field placeholder="" full-width v-model="search" class="inp-search"/>
     <mu-list>
       <mu-list-item v-for="(i,index) in playlist" :class="{active: curIndex == index}">
 
@@ -14,7 +16,7 @@
           <mu-menu-item title="收藏1" @click.native="favorite(i)" />
           <mu-menu-item title="添加到列表"  @click.native="showPlayList(i)"/>
 
-          <mu-menu-item title="菜单 3" />
+          <mu-menu-item title="菜单 34" />
         </mu-icon-menu>
       </mu-list-item>
 
@@ -36,12 +38,14 @@
 <script>
 
   import DlgPlayList from './playlist';
-
+import {mapState} from 'vuex'
 
   export default {
     data() {
       return {
+        ...mapState(['isAll']),
         list: [],
+        allList: [],
         musicDirectory: '/storage/emulated/0/netease/cloudmusic/music/',
 
         curIndex: -1,
@@ -49,13 +53,36 @@
         menuOpen: false,
 
         favoriteList: [],
-        cover: ''
+        cover: '',
+        search: '',
+      }
+    },
+    watch: {
+      search(val) {
+          // let _this = this;
+          try {
+            let list = this.allList.filter((item)=> {
+              return item.name.indexOf(val) !== -1;
+            })
+
+            this.playlistFilter = list;
+          } catch(e) {
+            alert(e)
+          }
+
       }
     },
     computed: {
       playlist() {
 
         if (this.$store.state.curListIndex === -1) {
+
+          if (this.isAll) {
+            if (this.search) {
+              return this.playlistFilter;
+            }
+            return this.allList.slice(0, 50);
+          }
           return this.list
         } else {
           return this.$store.state.playlist[this.$store.state.curListIndex].list;
@@ -89,7 +116,11 @@
 
 
     },
-
+    filters: {
+      limit(list) {
+        return list.slice(0, 50)
+      },
+    },
     methods: {
       removePlayList(item) {
         this.$refs.dlgPlayList.showDialog(item.name);
@@ -249,6 +280,10 @@
     .mu-list {
       min-height: 60%;
       max-height: 60%;
+    }
+
+    .inp-search {
+      margin-top: 64px;
     }
 
     .cover-box {

@@ -24,7 +24,8 @@
 
     <mu-drawer :open="open" :docked="docked" @close="toggle()">
       <mu-list @itemClick="docked ? '' : toggle()">
-        <mu-list-item  @click.native="changeListToAll()" >全部歌曲1</mu-list-item >
+        <mu-list-item  @click.native="changeListToAll()" >全部歌曲</mu-list-item >
+        <mu-list-item  @click.native="changeListToAllRandom()" >全部歌曲(随机)</mu-list-item >
         <mu-list-item :title="item.name" v-for="(item, index) in playlist" @click="changeList(index, item)" />
         <mu-list-item v-if="docked" @click.native="open = false" title="Close"/>
       </mu-list>
@@ -100,6 +101,9 @@ export default {
     changeListToAll() {
       this.$store.commit('changeList', -1)
     },
+    changeListToAllRandom() {
+      this.$store.commit('changeListRandom', -1)
+    },    
     changeList(index, item) {
       this.$store.commit('changeList', index, item)
     },

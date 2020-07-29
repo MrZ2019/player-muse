@@ -56,6 +56,8 @@ const COMMANDS = {
 
           let list = []
 
+
+
           plus.io.resolveLocalFileSystemURL("/storage/emulated/0/netease/cloudmusic/music", function(entry) {
             var r = entry.createReader()
 
@@ -203,6 +205,10 @@ const COMMANDS = {
     window.isConnected = false
 
     let host = 'http://192.168.31.174:8080';
+
+    if (window.config.isOut) {
+      host = "http://192.168.168.130:8080"
+    }
     setTimeout(function() {
       //
       $.ajax({
@@ -267,6 +273,8 @@ const COMMANDS = {
           let list = set.data.sort(function() {
             return Math.random() - 0.5
           })
+          
+          $Mp3List.allList = list;
 
           $Mp3List.list = list.slice(0, 50)
         }

@@ -11,8 +11,10 @@ const state = {
       list: []
     }
   ],
+  allList: [],
   curListIndex: -1,
-  msg: 'Hello'
+  msg: 'Hello',
+  isAll: false,
 }
 
 const mutations = {
@@ -36,7 +38,7 @@ const mutations = {
   removePlayList(state ) {
 
     state.playlist.splice(state.curListIndex, 1)
-    
+
     state.curListIndex = -1;
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
@@ -51,7 +53,15 @@ const mutations = {
   changeList(state, index, item) {
 
     state.curListIndex = index;
+
+    state.isAll = true;
+  },
+  changeListRandom(state, index) {
+
+    state.curListIndex = index;
+    state.isAll = false;
   }
+
 }
 
 export default new Vuex.Store({
