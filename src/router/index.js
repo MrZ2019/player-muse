@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import Mp3List from '@/components/mp3-list'
 import Star from '@/components/star'
+import Lyric from '@/components/lyric'
 
 Vue.use(Router)
 
@@ -22,6 +23,11 @@ export default new Router({
       path: '/star',
       name: 'star',
       component: Star
+    },
+    {
+      path: '/lyric',
+      name: 'lyric',
+      component: Lyric
     },
     {
       path: '*',

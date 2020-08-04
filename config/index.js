@@ -10,7 +10,25 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+	 '/api2': {
+		  target: 'http://gecimi.com',
+		  pathRewrite: {
+			'^/api2': '/api/lyric/'   //实际请求去掉/api以空字符串代替
+
+		  },
+      changeOrigin: true,
+      },
+	 '/api3': {
+		  target: 'http://s.gecimi.com',
+		  pathRewrite: {
+			'^/api3': '/lrc/'   //实际请求去掉/api以空字符串代替
+
+		  },
+      changeOrigin: true,
+      },
+      
+	},
 
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
@@ -20,7 +38,7 @@ module.exports = {
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */

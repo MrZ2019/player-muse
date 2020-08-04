@@ -2,7 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 
-import './config'
+import {apis} from './config'
 import App from './App'
 import router from './router'
 
@@ -18,6 +18,10 @@ window.Hub = new Vue()
 
 import store from './store';
 
+import axios from 'axios';
+
+Vue.prototype.$apis = apis;
+Vue.prototype.$axios = axios;
 
 /* eslint-disable no-new */
 new Vue({

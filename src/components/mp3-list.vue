@@ -189,6 +189,42 @@ import {mapState} from 'vuex'
           callplus('play', [self.musicDirectory + name, isFromStart], function(data) {
 
           })
+
+            try {
+ let song = name.split('-');
+
+ if (song[1]) {
+   song = song[1].trim();
+   let index = song.indexOf('.');
+   song = song.slice(0, index)
+ }
+
+
+ this.$axios.get(this.$apis.lyric + song).then((res) => {
+   res = res.data;
+   if (res.result[0]) {
+     let s = res.result[0].lrc;
+
+     let index = s.indexOf('/lrc/')
+
+     let lrc = s.slice(index + 4);
+
+
+     this.$axios.get(this.$apis.lrc + lrc).then((res) => {
+       
+       this.$store.commit('setLyric', res.data)
+     }).catch((e)=> {
+   // alert(e)
+ })
+
+   }
+ }).catch((e)=> {
+   // alert(e)
+ })
+            } catch(e) {
+              alert(e)
+            }
+
         callplus('getCover', [p], function(res) {
           displayCover(res.data)
 

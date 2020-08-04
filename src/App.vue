@@ -2,6 +2,7 @@
   <div id="app">
     <mu-appbar :title="listName" :style="styleObj">
       <mu-icon-button icon="menu" slot="left" @click.native="open = true" />
+      <mu-icon-button icon="title" slot="right" @click.native="goLyric" />
       <mu-icon-button icon="refresh" slot="right"  @click='refresh' v-show="!isStar"/>
       <mu-icon-button :icon="icon" slot="right"  @click='goStar'/>
       <mu-icon-menu icon="more_vert" slot="right">
@@ -103,7 +104,7 @@ export default {
     },
     changeListToAllRandom() {
       this.$store.commit('changeListRandom', -1)
-    },    
+    },
     changeList(index, item) {
       this.$store.commit('changeList', index, item)
     },
@@ -140,6 +141,10 @@ export default {
 
     goStar() {
       this.$router.push(this.$route.path == "/star" ?  '/' : '/star')
+    },
+
+    goLyric () {
+      this.$router.push(this.$route.path == "/lyric" ?  '/' : '/lyric')
     },
 
     refresh() {
