@@ -99,6 +99,13 @@ const mutations = {
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
+  renamePlayList(state, name) {
+    // alert(name)
+    state.playlist[state.curListIndex].name = name;
+
+    localStorage.setItem('playlist', JSON.stringify(state.playlist));
+  },
+
   addItemToList(state, {index, item}) {
     state.playlist[index].list.push({
       name: item,
@@ -119,7 +126,7 @@ const mutations = {
   },
 
   setLyric(state, lyric) {
-  
+
     state.lyric = lyric;
   }
 

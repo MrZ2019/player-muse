@@ -207,7 +207,7 @@ const COMMANDS = {
     let host = 'http://192.168.31.174:8080';
 
     if (window.config.isOut) {
-      host = "http://192.168.168.130:8080"
+      host = "http://192.168.1.109:8084"
     }
     setTimeout(function() {
       //
@@ -273,7 +273,7 @@ const COMMANDS = {
           let list = set.data.sort(function() {
             return Math.random() - 0.5
           })
-          
+
           $Mp3List.allList = list;
 
           $Mp3List.list = list.slice(0, 50)

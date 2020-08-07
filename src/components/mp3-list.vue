@@ -2,7 +2,7 @@
   <div class="container">
 
     <mu-text-field placeholder="" full-width v-model="search" class="inp-search"/>
-    <mu-list>
+    <mu-list ref="mp3List" @scroll.native="onScroll">
       <mu-list-item v-for="(i,index) in playlist" :class="{active: curIndex == index}">
 
         <span class="title" @click="play(i.name, index)">{{i.name}}
@@ -14,7 +14,7 @@
 
         <mu-icon-menu icon="more_vert" slot="right" @click.native="onOpen" :open="menuOpen">
           <mu-menu-item title="收藏1" @click.native="favorite(i)" />
-          <mu-menu-item title="添加到列表"  @click.native="showPlayList(i)"/>
+          <mu-menu-item title="重新播放"  @click.native="play(i.name, index, false, true)"/>
 
           <mu-menu-item title="菜单 34" />
         </mu-icon-menu>
@@ -41,6 +41,13 @@
 import {mapState} from 'vuex'
 
   export default {
+    beforeRouteEnter(from, to, next) {
+        next((vm)=> {
+          vm.$refs.mp3List.$el.scrollTop = window.mp3ListScrollTop
+        })
+
+
+    },
     data() {
       return {
         ...mapState(['isAll']),
@@ -122,6 +129,11 @@ import {mapState} from 'vuex'
       },
     },
     methods: {
+      onScroll($event) {
+        var el = $event.target;
+
+        window.mp3ListScrollTop = el.scrollTop;
+      },
       removePlayList(item) {
         this.$refs.dlgPlayList.showDialog(item.name);
       },
@@ -164,9 +176,9 @@ import {mapState} from 'vuex'
       onClick(index) {
         this.curIndex = index
       },
-      play(name, index, isFromStart) {
+      play(name, index, isFromStart, isReplay) {
         let self = this;
-        if (index == this.curIndex) {
+        if (!isReplay && index == this.curIndex) {
 
           if (this.isPause) {
             callplus('resume', [], function(isPaused) {})
@@ -185,6 +197,7 @@ import {mapState} from 'vuex'
 
         self.isPlay = true;
         this.curIndex = index;
+        this.name = name;
         var p = self.musicDirectory + name
           callplus('play', [self.musicDirectory + name, isFromStart], function(data) {
 
@@ -211,7 +224,7 @@ import {mapState} from 'vuex'
 
 
      this.$axios.get(this.$apis.lrc + lrc).then((res) => {
-       
+
        this.$store.commit('setLyric', res.data)
      }).catch((e)=> {
    // alert(e)

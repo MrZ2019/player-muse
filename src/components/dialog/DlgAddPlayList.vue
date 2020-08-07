@@ -8,6 +8,7 @@
 </template>
 
 <script>
+  import {mapMutations} from 'vuex';
 
   export default {
     data() {
@@ -17,16 +18,29 @@
       }
     },
     computed:{
+
     },
     methods: {
-      showDialog() {
+      ...mapMutations(['renamePlayList']),
+      showDialog(isRename) {
         this.dialog = true;
+        this.isRename = isRename;
+
+        if (this.isRename) {
+          this.listName = this.$store.state.playlist[this.$store.state.curListIndex].name;
+        }
       },
 
       close() {
         this.dialog = false;
       },
       finish() {
+        if (this.isRename) {
+          this.dialog = false;
+          this.renamePlayList(this.listName);
+          alert('成功')
+          return 
+        }
         this.$store.commit('addPlayList', this.listName);
         this.dialog = false;
         alert('添加成功')
