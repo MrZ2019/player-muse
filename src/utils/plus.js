@@ -9,6 +9,14 @@ if (window.isConnected) {
 window.s = JSON.stringify
 
 window.JSON2 = JSON;
+
+window.formatTime = function(total) {
+  let min = Math.floor(total / 60);
+
+  let second = Math.floor(total % 60);
+
+  return min + ":" + second;
+}
 const COMMANDS = {
 
     getCover: function(p) {
@@ -134,7 +142,7 @@ const COMMANDS = {
 
               // alert(length)
               if (!isFromStart) {
-                let pos = Math.random() * (length - 15);
+                var pos = Math.random() * (length - 15);
 
                 self.player.seekTo(pos);
               }
@@ -142,7 +150,24 @@ const COMMANDS = {
 
               self.player.play();
 
+
+              try {
+
+                // alert(list.length);
+                object.postMessage({
+                  data: {
+                    length: length,
+                    pos: pos,
+                  },
+                  type: 'play',
+                  name: 'play'
+                }, '*')
+
+              } catch (e) {
+                alert(e)
+              }
             })
+
 
 
 
@@ -152,6 +177,26 @@ const COMMANDS = {
           } catch (e) {
             alert(e)
           }
+
+        },
+        seek(pos) {
+
+          this.linear = pos;
+          try {
+
+            self.player.seekTo(pos);
+
+
+
+
+
+
+
+          } catch (e) {
+            alert(e)
+          }
+
+
 
         },
 
@@ -207,7 +252,7 @@ const COMMANDS = {
     let host = 'http://192.168.31.174:8080';
 
     if (window.config.isOut) {
-      host = "http://192.168.1.109:8084"
+      host = "http://192.168.1.116:8084"
     }
     setTimeout(function() {
       //

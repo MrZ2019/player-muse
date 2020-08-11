@@ -15,6 +15,7 @@
         <mu-icon-menu icon="more_vert" slot="right" @click.native="onOpen" :open="menuOpen">
           <mu-menu-item title="收藏1" @click.native="favorite(i)" />
           <mu-menu-item title="重新播放"  @click.native="play(i.name, index, false, true)"/>
+          <mu-menu-item title="添加到列表"  @click.native="showPlayList(i)"/>
 
           <mu-menu-item title="菜单 34" />
         </mu-icon-menu>
@@ -29,6 +30,11 @@
 
     <div class="cover-box">
       <img :src="cover" alt="">
+      <div class="right-box">
+        <div class="curr">{{curr}}</div>
+        <mu-slider class="demo-slider" v-model="linear" @change="onSliderChange" :max="max"></mu-slider>
+        <div class="total">{{total}}</div>
+      </div>
     </div>
 
     <DlgPlayList ref="dlgPlayList"></DlgPlayList>
@@ -62,6 +68,12 @@ import {mapState} from 'vuex'
         favoriteList: [],
         cover: '',
         search: '',
+
+        linear: 50,
+
+        total: '',
+        max: 100,
+        curr: 0,
       }
     },
     watch: {
@@ -129,6 +141,21 @@ import {mapState} from 'vuex'
       },
     },
     methods: {
+      onSliderChange() {
+        this.linear = this.linear - 0;
+        // alert(this.linear)
+          callplus('seek', [this.linear], function(data) {
+          })
+
+          clearInterval(this.sliderHandle);
+          this.sliderHandle = setInterval(()=> {
+            this.linear +=1;
+
+            this.curr = window.formatTime(this.linear);
+          }, 1000)
+
+
+      },
       onScroll($event) {
         var el = $event.target;
 
@@ -200,7 +227,15 @@ import {mapState} from 'vuex'
         this.name = name;
         var p = self.musicDirectory + name
           callplus('play', [self.musicDirectory + name, isFromStart], function(data) {
+            let s = data.data.length;
+            self.max = Math.ceil(s);
+            self.linear = data.data.pos - 0;
 
+            self.total = window.formatTime(s);
+
+            self.onSliderChange()
+
+            // alert()
           })
 
             try {
@@ -318,6 +353,11 @@ import {mapState} from 'vuex'
   }
 
 
+  .right-box {
+    display: flex;
+
+  }
+
   .container {
     position: fixed;
     top: 0;
@@ -343,6 +383,9 @@ import {mapState} from 'vuex'
       img {
         max-height: 100%;
         max-width: 100%;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
       }
     }
   }
