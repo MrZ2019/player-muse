@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "img-vuer": "^0.19.2",
     "material-design-icons": "^3.0.1",
     "muse-ui": "^2.1.0",
     "node-sass": "^4.11.0",

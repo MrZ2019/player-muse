@@ -23,6 +23,17 @@ import axios from 'axios';
 Vue.prototype.$apis = apis;
 Vue.prototype.$axios = axios;
 
+import gallery from 'img-vuer'
+
+Vue.use(gallery, {
+  swipeThreshold: 150, // default 100
+  isIndexShow: true, // show image index, default true
+  useCloseButton: true, // trigger gallery close with close button, default true
+  preload: true, // preload images in the same group, default true
+})
+
+
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

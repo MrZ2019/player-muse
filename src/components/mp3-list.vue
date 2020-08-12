@@ -29,7 +29,7 @@
     </mu-list>
 
     <div class="cover-box">
-      <img :src="cover" alt="">
+      <img :src="cover" alt="" @click="openCover">
       <div class="right-box">
         <div class="curr">{{curr}}</div>
         <mu-slider class="demo-slider" v-model="linear" @change="onSliderChange" :max="max"></mu-slider>
@@ -38,6 +38,13 @@
     </div>
 
     <DlgPlayList ref="dlgPlayList"></DlgPlayList>
+
+
+    <mu-dialog width="360" transition="slide-bottom" :open="openFullscreen"  @close="close">
+        <div class="big-cover-box">
+          <img :src="cover" alt="">
+        </div>
+    </mu-dialog>
   </div>
 </template>
 
@@ -74,6 +81,7 @@ import {mapState} from 'vuex'
         total: '',
         max: 100,
         curr: 0,
+        openFullscreen: false,
       }
     },
     watch: {
@@ -141,6 +149,12 @@ import {mapState} from 'vuex'
       },
     },
     methods: {
+      close() {
+        this.openFullscreen = false;
+      },
+      openCover() {
+        this.openFullscreen = true;
+      },
       onSliderChange() {
         this.linear = this.linear - 0;
         // alert(this.linear)
@@ -388,5 +402,9 @@ import {mapState} from 'vuex'
         border-radius: 50%;
       }
     }
+  }
+
+  .big-cover-box img {
+    width: 100%;
   }
 </style>
