@@ -29,7 +29,10 @@
     </mu-list>
 
     <div class="cover-box">
-      <img :src="cover" alt="" @click="openCover">
+      <div class="top-box">
+        <img :src="cover" alt="" @click="openCover">
+        <mu-icon size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex != -1"></mu-icon>
+      </div>
       <div class="right-box">
         <div class="curr">{{curr}}</div>
         <mu-slider class="demo-slider" v-model="linear" @change="onSliderChange" :max="max"></mu-slider>
@@ -82,6 +85,8 @@ import {mapState} from 'vuex'
         max: 100,
         curr: 0,
         openFullscreen: false,
+        playIcon: 'play_arrow',
+        iconColor: '',
       }
     },
     watch: {
@@ -118,7 +123,9 @@ import {mapState} from 'vuex'
     },
     components: {DlgPlayList},
     mounted() {
+      this.iconColor = localStorage.getItem('background')
 
+      // alert(this.iconColor)
       window.Hub.$on('refresh', function() {
         self.refreshList()
       })
@@ -149,6 +156,10 @@ import {mapState} from 'vuex'
       },
     },
     methods: {
+      togglePlay() {
+        this.play(this.name, this.curIndex);
+
+      },
       close() {
         this.openFullscreen = false;
       },
@@ -161,14 +172,20 @@ import {mapState} from 'vuex'
           callplus('seek', [this.linear], function(data) {
           })
 
-          clearInterval(this.sliderHandle);
+
+          this.startSlide();
+
+      },
+      startSlide() {
+          this.stopSlide();
           this.sliderHandle = setInterval(()=> {
             this.linear +=1;
 
             this.curr = window.formatTime(this.linear);
           }, 1000)
-
-
+      },
+      stopSlide() {
+        clearInterval(this.sliderHandle);
       },
       onScroll($event) {
         var el = $event.target;
@@ -224,19 +241,24 @@ import {mapState} from 'vuex'
           if (this.isPause) {
             callplus('resume', [], function(isPaused) {})
             this.isPause = false;
+            this.startSlide();
           } else {
             callplus('pause', [], function(isPaused) {})
 
             this.isPause = true;
+            this.stopSlide();
 
           }
 
+          this.playIcon = this.isPause ? 'play_arrow': 'pause_arrow';
           return
         }
 
 
 
         self.isPlay = true;
+        this.isPause = false;
+        this.playIcon = this.isPause ? 'play_arrow': 'pause_arrow';
         this.curIndex = index;
         this.name = name;
         var p = self.musicDirectory + name
@@ -379,6 +401,12 @@ import {mapState} from 'vuex'
     width: 100%;
     display: flex;
     flex-direction: column;
+
+    .top-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    }
 
     .mu-list {
       min-height: 60%;
