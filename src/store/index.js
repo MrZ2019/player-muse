@@ -15,6 +15,7 @@ const state = {
   curListIndex: -1,
   msg: 'Hello',
   isAll: false,
+  isSortMode: false,
   lyric: `[ti:你听得到]
 [ar:周杰伦]
 [al:叶惠美]
@@ -91,6 +92,17 @@ const mutations = {
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
+ savePlayList(state) {
+
+
+    localStorage.setItem('playlist', JSON.stringify(state.playlist));
+  },
+ removeSong(state, index) {
+    state.playlist[state.curListIndex].list.splice(index, 1);
+
+    localStorage.setItem('playlist', JSON.stringify(state.playlist));
+  },
+
   removePlayList(state ) {
 
     state.playlist.splice(state.curListIndex, 1)
