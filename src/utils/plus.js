@@ -181,13 +181,9 @@ const COMMANDS = {
         },
         seek(pos) {
 
-          this.linear = pos;
           try {
 
             self.player.seekTo(pos);
-
-
-
 
 
 
