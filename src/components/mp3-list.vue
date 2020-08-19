@@ -3,6 +3,15 @@
 
     <mu-text-field placeholder="" full-width v-model="search" class="inp-search"/>
     <mu-list ref="mp3List" @scroll.native="onScroll">
+      <draggable
+              :list="playlist"
+              :disabled="!isSortMode"
+              class="list-group"
+              ghost-class="ghost"
+              :move="checkMove"
+              @start="dragging = true"
+              @end="onDragEnd"
+            >
       <mu-list-item v-for="(i,index) in playlist" :class="{active: curIndex == index}">
 
         <span class="title" @click="play(i.name, index)">{{i.name}}
@@ -17,14 +26,14 @@
           <mu-menu-item title="重新播放"  @click.native="play(i.name, index, false, true)"/>
           <mu-menu-item title="添加到列表"  @click.native="showPlayList(i)"/>
 
-          <mu-menu-item title="菜单 34" />
+          <mu-menu-item title="删除"   @click.native="removeSong(index)"/>
         </mu-icon-menu>
       </mu-list-item>
 
       <!-- 		 <mu-list-item v-for="i in 100" :class="{active: curIndex == i}"
 		 @click="onClick(i)">{{i}}</mu-list-item>  -->
 
-
+     </draggable>
 
     </mu-list>
 
@@ -54,6 +63,7 @@
 <script>
 
   import DlgPlayList from './playlist';
+  import draggable from "vuedraggable";
 import {mapState} from 'vuex'
 
   export default {
@@ -66,7 +76,7 @@ import {mapState} from 'vuex'
     },
     data() {
       return {
-        ...mapState(['isAll']),
+
         list: [],
         allList: [],
         musicDirectory: '/storage/emulated/0/netease/cloudmusic/music/',
@@ -87,6 +97,8 @@ import {mapState} from 'vuex'
         openFullscreen: false,
         playIcon: 'play_arrow',
         iconColor: '',
+        dragging: false,
+        enabled: true,
       }
     },
     watch: {
@@ -105,6 +117,7 @@ import {mapState} from 'vuex'
       }
     },
     computed: {
+      ...mapState(['isAll', 'isSortMode']),
       playlist() {
 
         if (this.$store.state.curListIndex === -1) {
@@ -121,7 +134,7 @@ import {mapState} from 'vuex'
         }
       }
     },
-    components: {DlgPlayList},
+    components: {DlgPlayList, draggable},
     mounted() {
       this.iconColor = localStorage.getItem('background')
 
@@ -156,6 +169,12 @@ import {mapState} from 'vuex'
       },
     },
     methods: {
+
+      onDragEnd() {
+        this.dragging = false;
+
+        this.$store.commit('savePlayList')
+      },
       togglePlay() {
         this.play(this.name, this.curIndex);
 
@@ -198,6 +217,10 @@ import {mapState} from 'vuex'
       showPlayList(item) {
         this.$refs.dlgPlayList.showDialog(item.name);
       },
+      removeSong(index) {
+        this.$store.commit('removeSong', index);
+      },
+
       favorite(item) {
         this.favoriteList.push(item.name);
 

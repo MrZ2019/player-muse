@@ -10,7 +10,8 @@
         <mu-menu-item title="新建列表"  @click.native="createList"/>
         <mu-menu-item title="删除当前列表"  @click.native="removePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="重命名当前列表"  @click.native="renamePlayList" v-show="curListIndex !== -1"/>
-        <mu-menu-item title="菜单 3" />
+        <mu-menu-item title="排序模式"   @click.native="goSort" v-show="!isSortMode && curListIndex !== -1" />
+        <mu-menu-item title="退出排序模式"   @click.native="leaveSort" v-show="isSortMode && curListIndex !== -1" />
         <mu-menu-item title="菜单 4" />
         <mu-menu-item title="退出" @click.native="quit" />
       </mu-icon-menu>
@@ -67,7 +68,7 @@ export default {
     }
   },
   computed: {
-      ...mapState(['playlist', 'curListIndex']
+      ...mapState(['playlist', 'curListIndex', 'isSortMode']
       ),
       listName() {
         if (this.$store.state.curListIndex === -1) {
@@ -100,6 +101,13 @@ export default {
   },
   methods: {
     ...mapMutations(['removePlayList', 'renamePlayList']),
+    goSort() {
+      this.$store.state.isSortMode = true;
+    },
+    leaveSort() {
+      this.$store.state.isSortMode = false;
+    },
+
     changeListToAll() {
       this.$store.commit('changeList', -1)
     },
@@ -114,7 +122,7 @@ export default {
     },
     renamePlayList() {
       this.$refs.dlgAddPlayList.showDialog(true)
-    },    
+    },
     openPicker() {
       this.dialog = true;
     },
