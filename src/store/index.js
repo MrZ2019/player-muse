@@ -16,6 +16,12 @@ const state = {
   msg: 'Hello',
   isAll: false,
   isSortMode: false,
+  isAlbumMode: false,
+  curAlbum: {
+    list: [],
+  },
+  settings: {},
+  musicDirectory: '/storage/emulated/0/netease/cloudmusic/music/',
   lyric: `[ti:你听得到]
 [ar:周杰伦]
 [al:叶惠美]
@@ -75,6 +81,23 @@ const state = {
 }
 
 const mutations = {
+
+  setAlbum(state, data) {
+    state.isAlbumMode = true;
+    
+    state.curAlbum.list = [];
+
+    for (let i = 0; i < data.list.length; i++) {
+      let item = data.list[i]
+
+      state.curAlbum.list.push({
+        name: item.filename
+      })
+
+      state.curAlbum.title = data.title;
+    }
+
+  },
   getPlayList(state) {
      let list = localStorage.getItem('playlist');
 
@@ -97,6 +120,21 @@ const mutations = {
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
+
+  getSettings(state) {
+     let settings = localStorage.getItem('settings');
+
+     if (settings) {
+       state.settings = JSON.parse(settings);
+     }
+     },
+
+ saveSettings(state, settings) {
+
+
+    localStorage.setItem('settings', JSON.stringify(state.settings));
+  },
+
  removeSong(state, index) {
     state.playlist[state.curListIndex].list.splice(index, 1);
 
@@ -126,7 +164,7 @@ const mutations = {
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
   changeList(state, index, item) {
-
+    state.isAlbumMode = false;
     state.curListIndex = index;
 
     state.isAll = true;

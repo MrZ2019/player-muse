@@ -36,6 +36,13 @@ module.exports = {
         loader: 'vue-loader',
         options: vueLoaderConfig
       },
+{
+  test: /\.worker.js$/,
+        use: {
+          loader: 'worker-loader',
+          options: { inline: true, name: 'workerName.[hash].js' }
+        }
+},      
       {
         test: /\.js$/,
         loader: 'babel-loader',
