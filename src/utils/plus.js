@@ -6,16 +6,70 @@ if (window.isConnected) {
   object = window;
 }
 
+// window.DB = openDatabase('MyData', '', 'My Database', 25 * 1024 * 1024);
+import SqliteDB from './sqlite3'
+
+window.DB = new SqliteDB('MyData', 25 * 1024 * 1024)
+
 window.s = JSON.stringify
 
 window.JSON2 = JSON;
 
+window._clone = function(obj) {
+  return JSON.parse(JSON.stringify(obj))
+}
 window.formatTime = function(total) {
   let min = Math.floor(total / 60);
 
   let second = Math.floor(total % 60);
 
   return min + ":" + second;
+}
+
+window.getSongTags = function(path, cb, tagsList=["title", "artist", "album", "picture"]) {
+
+  callplus('getCover', [path], function(res) {
+    let str = res.data;
+let arr = str.split(',');
+  let data = window.atob(arr[1])
+  let mime = arr[0].match(/:(.*?);/)[1]
+  let ia = new Uint8Array(data.length)
+  for (var i = 0; i < data.length; i++) {
+    ia[i] = data.charCodeAt(i)
+  }
+  var blob = new Blob([ia], {
+    type: mime
+  })
+
+  try {
+    let url = name;
+    ID3.loadTags(url, function() {
+      var tags = ID3.getAllTags(url);
+      cb(tags);
+
+    }, {
+      tags: tagsList,
+      dataReader: ID3.FileAPIReader(new window.File([blob], name, {
+        // type: file.type
+      }))
+    });
+  } catch (e) {
+    alert(e)
+  }
+  })
+
+}
+
+window.getCover = function(image) {
+  var base64String = "";
+  for (var i = 0; i < image.data.length; i++) {
+    base64String += String.fromCharCode(image.data[i]);
+  }
+
+  var base64 = "data:" + image.format + ";base64," + window.btoa(
+    base64String);
+
+    return base64;
 }
 const COMMANDS = {
 
@@ -252,7 +306,7 @@ const COMMANDS = {
     let host = 'http://192.168.31.174:8080';
 
     if (window.config.isOut) {
-      host = "http://192.168.1.116:8084"
+      host = "http://192.168.1.114:8084"
     }
     setTimeout(function() {
       //

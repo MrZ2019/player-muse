@@ -12,7 +12,8 @@
         <mu-menu-item title="重命名当前列表"  @click.native="renamePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="排序模式"   @click.native="goSort" v-show="!isSortMode && curListIndex !== -1" />
         <mu-menu-item title="退出排序模式"   @click.native="leaveSort" v-show="isSortMode && curListIndex !== -1" />
-        <mu-menu-item title="菜单 4" />
+        <mu-menu-item title="设置"  @click.native="openSettings"/>
+        <mu-menu-item title="专辑视图"  @click.native="openAlbum"/>
         <mu-menu-item title="退出" @click.native="quit" />
       </mu-icon-menu>
     </mu-appbar>
@@ -43,6 +44,7 @@
 
 
       <DlgAddPlayList ref="dlgAddPlayList"></DlgAddPlayList>
+      <DlgSettings ref="dlgSettings"></DlgSettings>
   </div>
 </template>
 <script>
@@ -51,7 +53,7 @@ import {mapState, mapMutations} from 'vuex'
 import Compact from 'vue-color/src/components/Compact';
 
 import DlgAddPlayList from './components/dialog/DlgAddPlayList'
-
+import DlgSettings from './components/dialog/DlgSettings'
 export default {
   name: 'App',
   data() {
@@ -68,7 +70,7 @@ export default {
     }
   },
   computed: {
-      ...mapState(['playlist', 'curListIndex', 'isSortMode']
+      ...mapState(['playlist', 'curListIndex', 'isSortMode', 'settings']
       ),
       listName() {
         if (this.$store.state.curListIndex === -1) {
@@ -90,7 +92,7 @@ export default {
     }
   },
   components:{
-    'picker': Compact,DlgAddPlayList
+    'picker': Compact,DlgAddPlayList, DlgSettings
   },
   mounted() {
     let bg = localStorage.getItem('background');
@@ -98,6 +100,7 @@ export default {
     this.styleObj.background = bg;
 
     this.$store.commit('getPlayList')
+    this.$store.commit('getSettings')
   },
   methods: {
     ...mapMutations(['removePlayList', 'renamePlayList']),
@@ -120,6 +123,13 @@ export default {
     createList() {
       this.$refs.dlgAddPlayList.showDialog()
     },
+    openSettings() {
+      this.$refs.dlgSettings.showDialog()
+    },
+    openAlbum() {
+      this.$router.push('/album')
+    },
+
     renamePlayList() {
       this.$refs.dlgAddPlayList.showDialog(true)
     },

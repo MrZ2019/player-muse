@@ -4,7 +4,8 @@ import HelloWorld from '@/components/HelloWorld'
 import Mp3List from '@/components/mp3-list'
 import Star from '@/components/star'
 import Lyric from '@/components/lyric'
-
+import Scan from '@/components/scan'
+import Album from '@/components/albumView'
 Vue.use(Router)
 
 export default new Router({
@@ -29,6 +30,17 @@ export default new Router({
       name: 'lyric',
       component: Lyric
     },
+    {
+      path: '/scan',
+      name: 'scan',
+      component: Scan
+    },
+    {
+      path: '/album',
+      name: 'album',
+      component: Album
+    },
+
     {
       path: '*',
       name: 'Mp3List',

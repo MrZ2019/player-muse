@@ -10,6 +10,11 @@ import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 Vue.use(MuseUI)
 
+
+import VueWorker from 'vue-worker'
+
+Vue.use(VueWorker);
+
 import './utils/plus.js'
 
 Vue.config.productionTip = false

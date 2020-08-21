@@ -79,7 +79,7 @@ import {mapState} from 'vuex'
 
         list: [],
         allList: [],
-        musicDirectory: '/storage/emulated/0/netease/cloudmusic/music/',
+
 
         curIndex: -1,
 
@@ -117,9 +117,12 @@ import {mapState} from 'vuex'
       }
     },
     computed: {
-      ...mapState(['isAll', 'isSortMode']),
+      ...mapState(['isAll', 'isSortMode', 'musicDirectory']),
       playlist() {
-
+        this.curIndex = -1;
+        if (this.$store.state.isAlbumMode) {
+          return this.$store.state.curAlbum.list;
+        }
         if (this.$store.state.curListIndex === -1) {
 
           if (this.isAll) {
@@ -150,6 +153,8 @@ import {mapState} from 'vuex'
       }
       let self = this
       window.$Mp3List = self
+
+      self.$router.push('/scan')
       setTimeout(function() {
 
         self.refreshList()
@@ -259,7 +264,7 @@ import {mapState} from 'vuex'
       },
       play(name, index, isFromStart, isReplay) {
         let self = this;
-        if (!isReplay && index == this.curIndex) {
+        if (!isReplay && index == this.curIndex && this.name == name) {
 
           if (this.isPause) {
             callplus('resume', [], function(isPaused) {})
@@ -334,8 +339,6 @@ import {mapState} from 'vuex'
 
         callplus('getCover', [p], function(res) {
           displayCover(res.data)
-
-
         })
 
         function displayCover(str) {
@@ -356,13 +359,7 @@ import {mapState} from 'vuex'
               var tags = ID3.getAllTags(url);
               var image = tags.picture;
               if (image) {
-                var base64String = "";
-                for (var i = 0; i < image.data.length; i++) {
-                  base64String += String.fromCharCode(image.data[i]);
-                }
-
-                var base64 = "data:" + image.format + ";base64," + window.btoa(
-                  base64String);
+                let base64 = window.getCover(image)
                 self.cover = base64;
               }
             }, {
