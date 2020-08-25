@@ -16,12 +16,14 @@
 
     <script>
 
-      
+
       document.addEventListener('plusready', function() {
       	//console.log("所有plus api都应该在此事件发生后调用，否则会出现plus is undefined。"
       	plus.key.addEventListener('backbutton', function() {
       		//console.log("所有plus api都应该在此事件发生后调用，否则会出现plus is undefined。"
-      		location = '../index.html'
+      		// location = '../index.html'
+
+          $V && $V.$router.back()
       	});
 
       });

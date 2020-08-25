@@ -9,7 +9,7 @@ if (window.isConnected) {
 // window.DB = openDatabase('MyData', '', 'My Database', 25 * 1024 * 1024);
 import SqliteDB from './sqlite3'
 
-window.DB = new SqliteDB('MyData', 25 * 1024 * 1024)
+window.DB = new SqliteDB('MyData', 50 * 1024 * 1024)
 
 window.s = JSON.stringify
 
@@ -17,6 +17,15 @@ window.JSON2 = JSON;
 
 window._clone = function(obj) {
   return JSON.parse(JSON.stringify(obj))
+}
+
+
+window.pickItems = function(list, max) {
+  let result = list.sort(function() {
+    return Math.random() - 0.5
+  });
+
+  return result.slice(0, max)
 }
 window.formatTime = function(total) {
   let min = Math.floor(total / 60);
@@ -292,7 +301,12 @@ const COMMANDS = {
         },
 
         quit() {
-          location = './index.html'
+          if (window.isConnected) {
+            location = './index.html'
+          } else {
+            location = '../index.html'
+          }
+          
         },
 
     }

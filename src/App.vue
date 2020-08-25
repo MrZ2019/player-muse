@@ -73,6 +73,9 @@ export default {
       ...mapState(['playlist', 'curListIndex', 'isSortMode', 'settings']
       ),
       listName() {
+        if (this.$store.state.isAlbumMode) {
+          return this.$store.state.curAlbum.title;
+        }
         if (this.$store.state.curListIndex === -1) {
           return '全部歌曲'
         } else {
@@ -95,12 +98,17 @@ export default {
     'picker': Compact,DlgAddPlayList, DlgSettings
   },
   mounted() {
+    window.$V = this;
     let bg = localStorage.getItem('background');
 
     this.styleObj.background = bg;
 
     this.$store.commit('getPlayList')
     this.$store.commit('getSettings')
+
+    this.$store.commit('getAllAlbums')
+    this.$store.commit('getAllSongs')
+    this.$store.commit('getAllSingers')
   },
   methods: {
     ...mapMutations(['removePlayList', 'renamePlayList']),

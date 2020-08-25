@@ -53,6 +53,7 @@
 
 
     <mu-dialog width="360" transition="slide-bottom" :open="openFullscreen"  @close="close">
+        <div class="title">{{albumTitle}} - {{tags.artist}}</div >
         <div class="big-cover-box">
           <img :src="cover" alt="">
         </div>
@@ -87,6 +88,8 @@ import {mapState} from 'vuex'
 
         favoriteList: [],
         cover: '',
+        albumTitle: '',
+        tags: {},
         search: '',
 
         linear: 50,
@@ -105,11 +108,14 @@ import {mapState} from 'vuex'
       search(val) {
           // let _this = this;
           try {
+
+
             let list = this.allList.filter((item)=> {
               return item.name.indexOf(val) !== -1;
             })
 
             this.playlistFilter = list;
+
           } catch(e) {
             alert(e)
           }
@@ -126,7 +132,9 @@ import {mapState} from 'vuex'
         if (this.$store.state.curListIndex === -1) {
 
           if (this.isAll) {
+
             if (this.search) {
+
               return this.playlistFilter;
             }
             return this.allList.slice(0, 50);
@@ -154,7 +162,8 @@ import {mapState} from 'vuex'
       let self = this
       window.$Mp3List = self
 
-      self.$router.push('/scan')
+      // self.$router.push('/scan')
+
       setTimeout(function() {
 
         self.refreshList()
@@ -357,6 +366,8 @@ import {mapState} from 'vuex'
             let url = name;
             ID3.loadTags(url, function() {
               var tags = ID3.getAllTags(url);
+              self.tags = tags;
+              self.albumTitle = tags.title;
               var image = tags.picture;
               if (image) {
                 let base64 = window.getCover(image)

@@ -14,7 +14,7 @@ const state = {
   allList: [],
   curListIndex: -1,
   msg: 'Hello',
-  isAll: false,
+  isAll: true,
   isSortMode: false,
   isAlbumMode: false,
   curAlbum: {
@@ -22,6 +22,10 @@ const state = {
   },
   settings: {},
   musicDirectory: '/storage/emulated/0/netease/cloudmusic/music/',
+
+  allSongs: [],
+  allAlbums: [],
+  allSingers: [],
   lyric: `[ti:你听得到]
 [ar:周杰伦]
 [al:叶惠美]
@@ -82,9 +86,32 @@ const state = {
 
 const mutations = {
 
+  getAllSongs(state) {
+
+    window.DB.exec('SELECT * FROM songs', null, (data)=> {
+      state.allSongs = data;
+    })
+
+  },
+  getAllSingers(state) {
+
+    window.DB.exec('SELECT * FROM singers', null, (data)=> {
+      state.allSingers = data;
+    })
+
+  },
+
+  getAllAlbums(state) {
+
+    window.DB.exec('SELECT id, title FROM albums', null, (data)=> {
+      state.allAlbums = data;
+    })
+
+  },
+
   setAlbum(state, data) {
     state.isAlbumMode = true;
-    
+
     state.curAlbum.list = [];
 
     for (let i = 0; i < data.list.length; i++) {
@@ -93,8 +120,9 @@ const mutations = {
       state.curAlbum.list.push({
         name: item.filename
       })
-
-      state.curAlbum.title = data.title;
+      
+      Vue.set(state.curAlbum, 'title', data.title)
+      
     }
 
   },
