@@ -1,7 +1,21 @@
 <template>
   <div class="container">
 
-    <mu-text-field placeholder="" full-width v-model="search" class="inp-search"/>
+    <mu-text-field placeholder="" full-width v-model="search" class="inp-search" v-show="!isSingerMode && !isAlbumMode"/>
+
+    <div class="singer" v-show="isSingerMode">
+      <span class="text">当前歌手: </span>
+      <span class="value">{{curSinger}}</span>
+
+      <mu-flat-button @click="backList" primary label="返回"/>
+    </div>
+    <div class="singer" v-show="isAlbumMode">
+      <span class="text">当前专辑: </span>
+      <span class="value">{{curAlbum.title}}</span>
+
+      <mu-flat-button @click="backList" primary label="返回" v-show="isFromList"/>
+    </div>
+
     <mu-list ref="mp3List" @scroll.native="onScroll">
       <draggable
               :list="playlist"
@@ -25,7 +39,8 @@
           <mu-menu-item title="收藏1" @click.native="favorite(i)" />
           <mu-menu-item title="重新播放"  @click.native="play(i.name, index, false, true)"/>
           <mu-menu-item title="添加到列表"  @click.native="showPlayList(i)"/>
-
+          <mu-menu-item title="进入歌手页" @click.native="goSinger(i)" />
+          <mu-menu-item title="进入专辑页" @click.native="goAlbum(i)" />
           <mu-menu-item title="删除"   @click.native="removeSong(index)"/>
         </mu-icon-menu>
       </mu-list-item>
@@ -102,6 +117,7 @@ import {mapState} from 'vuex'
         iconColor: '',
         dragging: false,
         enabled: true,
+        lastTags: {},
       }
     },
     watch: {
@@ -123,9 +139,14 @@ import {mapState} from 'vuex'
       }
     },
     computed: {
-      ...mapState(['isAll', 'isSortMode', 'musicDirectory']),
+      ...mapState(['isAll', 'isSortMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum', 'isFromList']),
       playlist() {
         this.curIndex = -1;
+
+        if (this.$store.state.isSingerMode) {
+          return this.$store.state.singerSongs;
+        }
+
         if (this.$store.state.isAlbumMode) {
           return this.$store.state.curAlbum.list;
         }
@@ -184,6 +205,31 @@ import {mapState} from 'vuex'
     },
     methods: {
 
+      backList() {
+        this.$store.state.isSingerMode = false;
+        this.$store.state.isAlbumMode = false;
+        let val = window.mp3ListScrollTopSinger
+        this.$nextTick(() => {
+          this.$refs.mp3List.$el.scrollTop = val
+        })
+      },
+      goSinger(i) {
+        window.mp3ListScrollTopSinger = this.$refs.mp3List.$el.scrollTop
+        window.getSongTags(this.musicDirectory + i.name, (tags)=> {
+          this.lastTags = tags;
+
+          this.$store.commit('getSinger', tags.artist)
+        })
+      },
+      goAlbum(i) {
+        this.$store.state.isFromList = true
+        window.mp3ListScrollTopSinger = this.$refs.mp3List.$el.scrollTop
+        window.getSongTags(this.musicDirectory + i.name, (tags)=> {
+          this.lastTags = tags;
+
+          this.$store.commit('getAlbum', tags.album)
+        })
+      },
       onDragEnd() {
         this.dragging = false;
 
@@ -444,7 +490,7 @@ import {mapState} from 'vuex'
       max-height: 60%;
     }
 
-    .inp-search {
+    .inp-search, .singer {
       margin-top: 64px;
     }
 

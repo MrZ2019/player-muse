@@ -17,6 +17,9 @@ const state = {
   isAll: true,
   isSortMode: false,
   isAlbumMode: false,
+  isSingerMode: false,
+  curSinger: '',
+  isFromList: false,
   curAlbum: {
     list: [],
   },
@@ -93,6 +96,50 @@ const mutations = {
     })
 
   },
+  getSinger(state, name) {
+    state.curSinger = name;
+    window.DB.exec(`SELECT * FROM songs LEFT JOIN singers on
+     songs.singer_id=singers.id WHERE singers.name=?
+     group by songs.id`, [name], (data)=> {
+    state.singerSongs = [];
+
+    for (let i = 0; i < data.length; i++) {
+      let item = data[i]
+
+      state.singerSongs.push({
+        name: item.filename
+      })
+      }
+      state.isSingerMode = true;
+      state.isAlbumMode = false;
+    })
+
+  },
+  getAlbum(state, name) {
+    state.curSinger = name;
+    state.isAlbumMode = true;
+    state.isSingerMode = false;
+    
+    window.DB.exec(`SELECT * FROM songs LEFT JOIN albums on
+     songs.album_id=albums.id WHERE albums.title=?
+     group by songs.id`, [name], (data)=> {
+
+    state.curAlbum.list = [];
+
+    for (let i = 0; i < data.length; i++) {
+      let item = data[i]
+
+      state.curAlbum.list.push({
+        name: item.filename
+      })
+
+      Vue.set(state.curAlbum, 'title', name)
+
+    }
+    })
+
+  },
+
   getAllSingers(state) {
 
     window.DB.exec('SELECT * FROM singers', null, (data)=> {
@@ -111,6 +158,7 @@ const mutations = {
 
   setAlbum(state, data) {
     state.isAlbumMode = true;
+    state.isSingerMode = false;
 
     state.curAlbum.list = [];
 
@@ -120,9 +168,9 @@ const mutations = {
       state.curAlbum.list.push({
         name: item.filename
       })
-      
+
       Vue.set(state.curAlbum, 'title', data.title)
-      
+
     }
 
   },
@@ -193,6 +241,7 @@ const mutations = {
   },
   changeList(state, index, item) {
     state.isAlbumMode = false;
+    state.isSingerMode = false;
     state.curListIndex = index;
 
     state.isAll = true;

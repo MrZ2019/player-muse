@@ -66,7 +66,7 @@
          console.log(data[0])
         self.allRows = data;
       })
-      this.search = '北京'
+      this.search = ''
       this.query()
     },
     methods: {
@@ -88,7 +88,7 @@
             list: self.songRows,
             title: item.title
           })
-
+          self.$store.state.isFromList = false
           self.$router.push('/mp3-list')
         })
 

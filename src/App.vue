@@ -2,8 +2,8 @@
   <div id="app">
     <mu-appbar :title="listName" :style="styleObj">
       <mu-icon-button icon="menu" slot="left" @click.native="open = true" />
-      <mu-icon-button icon="title" slot="right" @click.native="goLyric" />
-      <mu-icon-button icon="refresh" slot="right"  @click='refresh' v-show="!isStar"/>
+      <mu-icon-button icon="title" slot="right" @click.native="goLyric" v-show="!isAlbumView" />
+      <mu-icon-button icon="refresh" slot="right"  @click='refresh' v-show="!isStar && !isAlbumView"/>
       <mu-icon-button :icon="icon" slot="right"  @click='goStar'/>
       <mu-icon-menu icon="more_vert" slot="right">
         <mu-menu-item title="主题色" @click.native="openPicker"/>
@@ -81,6 +81,10 @@ export default {
         } else {
           return this.$store.state.playlist[this.$store.state.curListIndex].name;
         }
+      },
+
+      isAlbumView() {
+        return this.$route.path == '/album';
       }
   },
   watch: {
@@ -109,6 +113,9 @@ export default {
     this.$store.commit('getAllAlbums')
     this.$store.commit('getAllSongs')
     this.$store.commit('getAllSingers')
+
+
+
   },
   methods: {
     ...mapMutations(['removePlayList', 'renamePlayList']),
