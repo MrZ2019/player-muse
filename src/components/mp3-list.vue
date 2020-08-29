@@ -1,54 +1,47 @@
 <template>
   <div class="container">
 
-    <mu-text-field placeholder="" full-width v-model="search" class="inp-search" v-show="!isSingerMode && !isAlbumMode"/>
+    <mu-text-field placeholder="" full-width v-model="search" class="inp-search" v-show="!isSingerMode && !isAlbumMode" />
 
     <div class="singer" v-show="isSingerMode">
       <span class="text">当前歌手: </span>
       <span class="value">{{curSinger}}</span>
 
-      <mu-flat-button @click="backList" primary label="返回"/>
+      <mu-flat-button @click="backList" primary label="返回" />
     </div>
     <div class="singer" v-show="isAlbumMode">
       <span class="text">当前专辑: </span>
       <span class="value">{{curAlbum.title}}</span>
 
-      <mu-flat-button @click="backList" primary label="返回" v-show="isFromList"/>
+      <mu-flat-button @click="backList" primary label="返回" v-show="isFromList" />
     </div>
 
     <mu-list ref="mp3List" @scroll.native="onScroll">
-      <draggable
-              :list="playlist"
-              :disabled="!isSortMode"
-              class="list-group"
-              ghost-class="ghost"
-              :move="checkMove"
-              @start="dragging = true"
-              @end="onDragEnd"
-            >
-      <mu-list-item v-for="(i,index) in playlist" :class="{active: curIndex == index}">
+      <draggable :list="playlist" :disabled="!isSortMode" class="list-group" ghost-class="ghost" :move="checkMove"
+        @start="dragging = true" @end="onDragEnd">
+        <mu-list-item v-for="(i,index) in playlist" :class="{active: curIndex == index}">
 
-        <span class="title" @click="play(i.name, index)">{{i.name}}
-        </span>
+          <span class="title" @click="play(i.name, index)">{{i.name}}
+          </span>
 
 
 
-        <mu-icon value="star" class="star" color="yellow" v-show="i.favorited" />
+          <mu-icon value="star" class="star" color="yellow" v-show="i.favorited" />
 
-        <mu-icon-menu icon="more_vert" slot="right" @click.native="onOpen" :open="menuOpen">
-          <mu-menu-item title="收藏1" @click.native="favorite(i)" />
-          <mu-menu-item title="重新播放"  @click.native="play(i.name, index, false, true)"/>
-          <mu-menu-item title="添加到列表"  @click.native="showPlayList(i)"/>
-          <mu-menu-item title="进入歌手页" @click.native="goSinger(i)" />
-          <mu-menu-item title="进入专辑页" @click.native="goAlbum(i)" />
-          <mu-menu-item title="删除"   @click.native="removeSong(index)"/>
-        </mu-icon-menu>
-      </mu-list-item>
+          <mu-icon-menu icon="more_vert" slot="right" @click.native="onOpen" :open="menuOpen">
+            <mu-menu-item title="收藏1" @click.native="favorite(i)" />
+            <mu-menu-item title="重新播放" @click.native="play(i.name, index, false, true)" />
+            <mu-menu-item title="添加到列表" @click.native="showPlayList(i)" />
+            <mu-menu-item title="进入歌手页" @click.native="goSinger(i)" />
+            <mu-menu-item title="进入专辑页" @click.native="goAlbum(i)" />
+            <mu-menu-item title="删除" @click.native="removeSong(index)" />
+          </mu-icon-menu>
+        </mu-list-item>
 
-      <!-- 		 <mu-list-item v-for="i in 100" :class="{active: curIndex == i}"
+        <!-- 		 <mu-list-item v-for="i in 100" :class="{active: curIndex == i}"
 		 @click="onClick(i)">{{i}}</mu-list-item>  -->
 
-     </draggable>
+      </draggable>
 
     </mu-list>
 
@@ -59,7 +52,7 @@
       </div>
       <div class="right-box">
         <div class="curr">{{curr}}</div>
-        <mu-slider class="demo-slider" v-model="linear" @change="onSliderChange" :max="max"></mu-slider>
+        <mu-slider class="demo-slider" v-model="linear" @change="onSliderChange" :max="max" color='yellow'></mu-slider>
         <div class="total">{{total}}</div>
       </div>
     </div>
@@ -67,26 +60,27 @@
     <DlgPlayList ref="dlgPlayList"></DlgPlayList>
 
 
-    <mu-dialog width="360" transition="slide-bottom" :open="openFullscreen"  @close="close">
-        <div class="title">{{albumTitle}} - {{tags.artist}}</div >
-        <div class="big-cover-box">
-          <img :src="cover" alt="">
-        </div>
+    <mu-dialog width="360" transition="slide-bottom" :open="openFullscreen" @close="close">
+      <div class="title">{{albumTitle}} - {{tags.artist}}</div>
+      <div class="big-cover-box">
+        <img :src="cover" alt="">
+      </div>
     </mu-dialog>
   </div>
 </template>
 
 <script>
-
   import DlgPlayList from './playlist';
   import draggable from "vuedraggable";
-import {mapState} from 'vuex'
+  import {
+    mapState
+  } from 'vuex'
 
   export default {
     beforeRouteEnter(from, to, next) {
-        next((vm)=> {
-          vm.$refs.mp3List.$el.scrollTop = window.mp3ListScrollTop
-        })
+      next((vm) => {
+        vm.$refs.mp3List.$el.scrollTop = window.mp3ListScrollTop
+      })
 
 
     },
@@ -111,7 +105,7 @@ import {mapState} from 'vuex'
 
         total: '',
         max: 100,
-        curr: 0,
+        curr: '',
         openFullscreen: false,
         playIcon: 'play_arrow',
         iconColor: '',
@@ -122,24 +116,26 @@ import {mapState} from 'vuex'
     },
     watch: {
       search(val) {
-          // let _this = this;
-          try {
+        // let _this = this;
+        try {
 
 
-            let list = this.allList.filter((item)=> {
-              return item.name.indexOf(val) !== -1;
-            })
+          let list = this.allList.filter((item) => {
+            return item.name.indexOf(val) !== -1;
+          })
 
-            this.playlistFilter = list;
+          this.playlistFilter = list;
 
-          } catch(e) {
-            alert(e)
-          }
+        } catch (e) {
+          alert(e)
+        }
 
       }
     },
     computed: {
-      ...mapState(['isAll', 'isSortMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum', 'isFromList']),
+      ...mapState(['isAll', 'isSortMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
+        'isFromList'
+      ]),
       playlist() {
         this.curIndex = -1;
 
@@ -166,7 +162,10 @@ import {mapState} from 'vuex'
         }
       }
     },
-    components: {DlgPlayList, draggable},
+    components: {
+      DlgPlayList,
+      draggable
+    },
     mounted() {
       this.iconColor = localStorage.getItem('background')
 
@@ -215,7 +214,7 @@ import {mapState} from 'vuex'
       },
       goSinger(i) {
         window.mp3ListScrollTopSinger = this.$refs.mp3List.$el.scrollTop
-        window.getSongTags(this.musicDirectory + i.name, (tags)=> {
+        window.getSongTags(this.musicDirectory + i.name, (tags) => {
           this.lastTags = tags;
 
           this.$store.commit('getSinger', tags.artist)
@@ -224,7 +223,7 @@ import {mapState} from 'vuex'
       goAlbum(i) {
         this.$store.state.isFromList = true
         window.mp3ListScrollTopSinger = this.$refs.mp3List.$el.scrollTop
-        window.getSongTags(this.musicDirectory + i.name, (tags)=> {
+        window.getSongTags(this.musicDirectory + i.name, (tags) => {
           this.lastTags = tags;
 
           this.$store.commit('getAlbum', tags.album)
@@ -248,20 +247,19 @@ import {mapState} from 'vuex'
       onSliderChange() {
         this.linear = this.linear - 0;
         // alert(this.linear)
-          callplus('seek', [this.linear], function(data) {
-          })
+        callplus('seek', [this.linear], function(data) {})
 
 
-          this.startSlide();
+        this.startSlide();
 
       },
       startSlide() {
-          this.stopSlide();
-          this.sliderHandle = setInterval(()=> {
-            this.linear +=1;
+        this.stopSlide();
+        this.sliderHandle = setInterval(() => {
+          this.linear += 1;
 
-            this.curr = window.formatTime(this.linear);
-          }, 1000)
+          this.curr = window.formatTime(this.linear);
+        }, 1000)
       },
       stopSlide() {
         clearInterval(this.sliderHandle);
@@ -333,7 +331,7 @@ import {mapState} from 'vuex'
 
           }
 
-          this.playIcon = this.isPause ? 'play_arrow': 'pause_arrow';
+          this.playIcon = this.isPause ? 'play_arrow' : 'pause_arrow';
           return
         }
 
@@ -341,56 +339,56 @@ import {mapState} from 'vuex'
 
         self.isPlay = true;
         this.isPause = false;
-        this.playIcon = this.isPause ? 'play_arrow': 'pause_arrow';
+        this.playIcon = this.isPause ? 'play_arrow' : 'pause_arrow';
         this.curIndex = index;
         this.name = name;
         var p = self.musicDirectory + name
-          callplus('play', [self.musicDirectory + name, isFromStart], function(data) {
-            let s = data.data.length;
-            self.max = Math.ceil(s);
-            self.linear = data.data.pos - 0;
+        callplus('play', [self.musicDirectory + name, isFromStart], function(data) {
+          let s = data.data.length;
+          self.max = Math.ceil(s);
+          self.linear = data.data.pos - 0;
 
-            self.total = window.formatTime(s);
+          self.total = window.formatTime(s);
 
-            self.onSliderChange()
+          self.onSliderChange()
 
-            // alert()
-          })
+          // alert()
+        })
 
-            try {
- let song = name.split('-');
+        try {
+          let song = name.split('-');
 
- if (song[1]) {
-   song = song[1].trim();
-   let index = song.indexOf('.');
-   song = song.slice(0, index)
- }
-
-
- this.$axios.get(this.$apis.lyric + song).then((res) => {
-   res = res.data;
-   if (res.result[0]) {
-     let s = res.result[0].lrc;
-
-     let index = s.indexOf('/lrc/')
-
-     let lrc = s.slice(index + 4);
+          if (song[1]) {
+            song = song[1].trim();
+            let index = song.indexOf('.');
+            song = song.slice(0, index)
+          }
 
 
-     this.$axios.get(this.$apis.lrc + lrc).then((res) => {
+          this.$axios.get(this.$apis.lyric + song).then((res) => {
+            res = res.data;
+            if (res.result[0]) {
+              let s = res.result[0].lrc;
 
-       this.$store.commit('setLyric', res.data)
-     }).catch((e)=> {
-   // alert(e)
- })
+              let index = s.indexOf('/lrc/')
 
-   }
- }).catch((e)=> {
-   // alert(e)
- })
-            } catch(e) {
-              alert(e)
+              let lrc = s.slice(index + 4);
+
+
+              this.$axios.get(this.$apis.lrc + lrc).then((res) => {
+
+                this.$store.commit('setLyric', res.data)
+              }).catch((e) => {
+                // alert(e)
+              })
+
             }
+          }).catch((e) => {
+            // alert(e)
+          })
+        } catch (e) {
+          alert(e)
+        }
 
         callplus('getCover', [p], function(res) {
           displayCover(res.data)
@@ -480,9 +478,9 @@ import {mapState} from 'vuex'
     flex-direction: column;
 
     .top-box {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
 
     .mu-list {
@@ -490,8 +488,13 @@ import {mapState} from 'vuex'
       max-height: 60%;
     }
 
-    .inp-search, .singer {
+    .inp-search,
+    .singer {
       margin-top: 64px;
+    }
+
+    .singer {
+      padding: 0 0 0 16px;
     }
 
     .cover-box {
