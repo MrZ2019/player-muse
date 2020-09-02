@@ -132,7 +132,7 @@ export default {
   mounted() {
     window.$V = this;
     let bg = localStorage.getItem('background');
-    
+
     this.colors = {
       hex: bg,
     }
