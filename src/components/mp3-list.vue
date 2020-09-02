@@ -48,7 +48,7 @@
     <div class="cover-box">
       <div class="top-box">
         <img :src="cover" alt="" @click="openCover">
-        <mu-icon size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex != -1"></mu-icon>
+        <mu-icon size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex !== -1 || isPlay"></mu-icon>
       </div>
       <div class="right-box">
         <div class="curr">{{curr}}</div>
@@ -254,12 +254,16 @@
         this.openFullscreen = true;
       },
       onSliderChange() {
-        this.linear = this.linear - 0;
+        this.linear = parseInt(this.linear - 0);
         // alert(this.linear)
-        callplus('seek', [this.linear], function(data) {})
+        clearTimeout(this.startSlideHandle);
+
+        this.startSlideHandle = setTimeout(() => {
+          callplus('seek', [this.linear], function(data) {})
 
 
-        this.startSlide();
+          this.startSlide();
+        }, 1000)
 
       },
       startSlide() {
@@ -268,6 +272,12 @@
           this.linear += 1;
 
           this.curr = window.formatTime(this.linear);
+
+          if (this.curr === this.total) {
+            this.stopSlide();
+            this.isPause = true;
+         
+          }
         }, 1000)
       },
       stopSlide() {
@@ -301,6 +311,7 @@
         })
       },
       refreshList: function() {
+        let self = this;
         callplus('getList', {
           url: self.musicDirectory
         }, function(data) {
@@ -315,6 +326,10 @@
               item.favorited = true;
             }
           }
+
+          self.$nextTick(()=> {
+            self.$refs.mp3List.$el.scrollTop = 0;
+          })
         })
       },
       onOpen($event) {
