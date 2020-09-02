@@ -19,7 +19,7 @@
     <mu-list ref="mp3List" @scroll.native="onScroll">
       <draggable :list="playlist" :disabled="!isSortMode" class="list-group" ghost-class="ghost" :move="checkMove"
         @start="dragging = true" @end="onDragEnd">
-        <mu-list-item v-for="(i,index) in playlist" :class="{active: curIndex == index}">
+        <mu-list-item v-for="(i,index) in mp3list" :class="{active: curIndex == index}">
 
           <span class="title" @click="play(i.name, index)">{{i.name}}
           </span>
@@ -134,9 +134,12 @@
     },
     computed: {
       ...mapState(['isAll', 'isSortMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
-        'isFromList'
+        'isFromList', 'playlist', 'groupList', 'curGroupIndex'
       ]),
-      playlist() {
+      // curPlayList() {
+
+      // },
+      mp3list() {
         this.curIndex = -1;
 
         if (this.$store.state.isSingerMode) {
@@ -158,7 +161,13 @@
           }
           return this.list
         } else {
-          return this.$store.state.playlist[this.$store.state.curListIndex].list;
+          let list;
+          if(this.curGroupIndex === 0) {
+            list = this.playlist
+          } else {
+            list = this.groupList[this.curGroupIndex].playlist;
+          }
+          return list[this.$store.state.curListIndex].list;
         }
       }
     },

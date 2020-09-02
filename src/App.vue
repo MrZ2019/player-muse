@@ -30,6 +30,7 @@
 
     <mu-drawer :open="open" :docked="docked" @close="toggle()">
       <mu-list @itemClick="docked ? '' : toggle()">
+         <mu-list-item >当前分组: <b>{{groupList[curGroupIndex].name}}</b></mu-list-item >
         <mu-list-item  @click.native="changeListToAll()" >全部歌曲</mu-list-item >
         <!-- <mu-list-item  @click.native="changeListToAllRandom()" >全部歌曲(随机)</mu-list-item > -->
         <mu-list-item :title="item.name" v-for="(item, index) in curPlayList" @click="changeList(index, item)" />
@@ -92,7 +93,7 @@ export default {
         if (this.$store.state.curListIndex === -1) {
           return '全部歌曲'
         } else {
-          return this.$store.state.playlist[this.$store.state.curListIndex].name;
+          return this.curPlayList[this.$store.state.curListIndex].name;
         }
       },
 
@@ -145,7 +146,7 @@ export default {
   mounted() {
     window.$V = this;
     let bg = localStorage.getItem('background');
-    
+
     this.colors = {
       hex: bg,
     }

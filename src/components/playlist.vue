@@ -1,7 +1,7 @@
 <template>
   <mu-dialog :open="dialog" title="播放列表" @close="close">
       <mu-list @change="handleChange">
-        <mu-list-item :title="item.name" v-for="(item,index) in playlist" :value="index"/>
+        <mu-list-item :title="item.name" v-for="(item,index) in curPlayList" :value="index"/>
       </mu-list>
   </mu-dialog>
 </template>
@@ -17,11 +17,19 @@
       }
     },
     computed:{
-       ...mapState(['playlist'])
+      ...mapState(['playlist', 'groupList', 'curGroupIndex']
+      ),
+      curPlayList() {
+        if(this.curGroupIndex === 0) {
+          return this.playlist
+        } else {
+          return this.groupList[this.curGroupIndex].playlist;
+        }
+      },
     },
     methods: {
       handleChange(index) {
-        this.$store.commit('addItemToList', {index, item: this.selectedItem})
+        this.$store.commit('addItemToList', {index, item: this.selectedItem, curGroupIndex: this.curGroupIndex})
         this.dialog = false;
       },
 

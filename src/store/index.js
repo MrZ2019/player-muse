@@ -32,7 +32,7 @@ const state = {
 
   groupList: [],
 
-  curGroupIndex: -1,
+  curGroupIndex: 0,
   curGroup: {},
   lyric: `[ti:你听得到]
 [ar:周杰伦]
@@ -252,6 +252,12 @@ const mutations = {
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
+ removeGroup(state, index) {
+    state.groupList.splice(index, 1);
+    state.curGroupIndex = 0;
+
+    localStorage.setItem('groupList', JSON.stringify(state.groupList));
+  },
 
   removePlayList(state ) {
 
@@ -267,13 +273,28 @@ const mutations = {
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
+  renameGroup(state, {newName, index}) {
+    // alert(name)
+    state.groupList[index].name = newName;
 
-  addItemToList(state, {index, item}) {
-    state.playlist[index].list.push({
-      name: item,
-    });
+    localStorage.setItem('groupList', JSON.stringify(state.groupList));
+  },
 
-    localStorage.setItem('playlist', JSON.stringify(state.playlist));
+  addItemToList(state, {curGroupIndex, index, item}) {
+
+    if (curGroupIndex === 0) {
+      state.playlist[index].list.push({
+        name: item,
+      });
+
+      localStorage.setItem('playlist', JSON.stringify(state.playlist));
+    } else {
+      state.groupList[curGroupIndex].playlist[index].list.push({
+        name: item,
+      });
+
+      localStorage.setItem('groupList', JSON.stringify(state.groupList));
+    }
   },
   changeList(state, index, item) {
     state.isAlbumMode = false;
