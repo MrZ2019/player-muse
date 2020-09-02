@@ -72,7 +72,7 @@ export default {
       colors: [],
       styleObj: {
         background: ''
-      }
+      },
     }
   },
   computed: {
@@ -98,7 +98,25 @@ export default {
 
       isAlbumView() {
         return this.$route.path == '/album';
-      }
+      },
+
+      theme() {
+        return (
+        `.mu-slider-fill
+        {
+          background: ${this.colors.hex} !important;
+        }
+
+        .mu-slider-thumb {
+          color: ${this.colors.hex} !important;
+          background: ${this.colors.hex} !important;
+        }
+
+        .mu-flat-button-primary {
+           color: ${this.colors.hex} !important;
+        }
+        `)
+      },
   },
   watch: {
     '$route.path'(newVal, oldVal) {
@@ -109,7 +127,17 @@ export default {
         this.icon = 'star';
         this.isStar = true
       }
-    }
+    },
+
+   theme(newVal) {
+
+     document.getElementById('theme').innerHTML = newVal
+   },
+
+   colors(newVal) {
+     this.styleObj.background = newVal.hex;
+   },
+
   },
   components:{
     'picker': Compact,DlgAddPlayList, DlgSettings, DlgAddListGroup, DlgGroupList,
@@ -117,7 +145,10 @@ export default {
   mounted() {
     window.$V = this;
     let bg = localStorage.getItem('background');
-
+    
+    this.colors = {
+      hex: bg,
+    }
     this.styleObj.background = bg;
 
     this.$store.commit('getPlayList')
