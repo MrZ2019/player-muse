@@ -8,6 +8,8 @@
       <mu-icon-menu icon="more_vert" slot="right">
         <mu-menu-item title="主题色" @click.native="openPicker"/>
         <mu-menu-item title="新建列表"  @click.native="createList"/>
+        <mu-menu-item title="新建组"  @click.native="createListGroup"/>
+        <mu-menu-item title="切换组"  @click.native="changeGroup"/>
         <mu-menu-item title="删除当前列表"  @click.native="removePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="重命名当前列表"  @click.native="renamePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="排序模式"   @click.native="goSort" v-show="!isSortMode && curListIndex !== -1" />
@@ -28,9 +30,10 @@
 
     <mu-drawer :open="open" :docked="docked" @close="toggle()">
       <mu-list @itemClick="docked ? '' : toggle()">
+         <mu-list-item >当前分组: <b>{{groupList[curGroupIndex].name}}</b></mu-list-item >
         <mu-list-item  @click.native="changeListToAll()" >全部歌曲</mu-list-item >
-        <mu-list-item  @click.native="changeListToAllRandom()" >全部歌曲(随机)</mu-list-item >
-        <mu-list-item :title="item.name" v-for="(item, index) in playlist" @click="changeList(index, item)" />
+        <!-- <mu-list-item  @click.native="changeListToAllRandom()" >全部歌曲(随机)</mu-list-item > -->
+        <mu-list-item :title="item.name" v-for="(item, index) in curPlayList" @click="changeList(index, item)" />
         <mu-list-item v-if="docked" @click.native="open = false" title="Close"/>
       </mu-list>
     </mu-drawer>
@@ -44,7 +47,9 @@
 
 
       <DlgAddPlayList ref="dlgAddPlayList"></DlgAddPlayList>
+      <DlgAddListGroup ref="dlgAddListGroup"></DlgAddListGroup>
       <DlgSettings ref="dlgSettings"></DlgSettings>
+      <DlgGroupList ref="dlgGroupList"></DlgGroupList>
   </div>
 </template>
 <script>
@@ -53,7 +58,9 @@ import {mapState, mapMutations} from 'vuex'
 import Compact from 'vue-color/src/components/Compact';
 
 import DlgAddPlayList from './components/dialog/DlgAddPlayList'
+import DlgAddListGroup from './components/dialog/DlgAddListGroup'
 import DlgSettings from './components/dialog/DlgSettings'
+import DlgGroupList from './components/dialog/DlgGroupList'
 export default {
   name: 'App',
   data() {
@@ -70,8 +77,15 @@ export default {
     }
   },
   computed: {
-      ...mapState(['playlist', 'curListIndex', 'isSortMode', 'settings']
+      ...mapState(['playlist', 'curListIndex', 'isSortMode', 'settings', 'groupList', 'curGroupIndex']
       ),
+      curPlayList() {
+        if(this.curGroupIndex === 0) {
+          return this.playlist
+        } else {
+          return this.groupList[this.curGroupIndex].playlist;
+        }
+      },
       listName() {
         if (this.$store.state.isAlbumMode) {
           return this.$store.state.curAlbum.title;
@@ -79,7 +93,7 @@ export default {
         if (this.$store.state.curListIndex === -1) {
           return '全部歌曲'
         } else {
-          return this.$store.state.playlist[this.$store.state.curListIndex].name;
+          return this.curPlayList[this.$store.state.curListIndex].name;
         }
       },
 
@@ -127,7 +141,7 @@ export default {
 
   },
   components:{
-    'picker': Compact,DlgAddPlayList, DlgSettings
+    'picker': Compact,DlgAddPlayList, DlgSettings, DlgAddListGroup, DlgGroupList,
   },
   mounted() {
     window.$V = this;
@@ -144,6 +158,8 @@ export default {
     this.$store.commit('getAllAlbums')
     this.$store.commit('getAllSongs')
     this.$store.commit('getAllSingers')
+
+    this.$store.commit('getGroup')
 
 
 
@@ -166,9 +182,17 @@ export default {
     changeList(index, item) {
       this.$store.commit('changeList', index, item)
     },
+    changeGroup(index, item) {
+      this.$refs.dlgGroupList.showDialog()
+    },
+
     createList() {
       this.$refs.dlgAddPlayList.showDialog()
     },
+    createListGroup() {
+      this.$refs.dlgAddListGroup.showDialog()
+    },
+
     openSettings() {
       this.$refs.dlgSettings.showDialog()
     },

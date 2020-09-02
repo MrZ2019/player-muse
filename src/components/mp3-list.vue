@@ -19,7 +19,7 @@
     <mu-list ref="mp3List" @scroll.native="onScroll">
       <draggable :list="playlist" :disabled="!isSortMode" class="list-group" ghost-class="ghost" :move="checkMove"
         @start="dragging = true" @end="onDragEnd">
-        <mu-list-item v-for="(i,index) in playlist" :class="{active: curIndex == index}">
+        <mu-list-item v-for="(i,index) in mp3list" :class="{active: curIndex == index}">
 
           <span class="title" @click="play(i.name, index)">{{i.name}}
           </span>
@@ -48,7 +48,7 @@
     <div class="cover-box">
       <div class="top-box">
         <img :src="cover" alt="" @click="openCover">
-        <mu-icon size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex != -1"></mu-icon>
+        <mu-icon size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex !== -1 || isPlay"></mu-icon>
       </div>
       <div class="right-box">
         <div class="curr">{{curr}}</div>
@@ -134,9 +134,12 @@
     },
     computed: {
       ...mapState(['isAll', 'isSortMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
-        'isFromList'
+        'isFromList', 'playlist', 'groupList', 'curGroupIndex'
       ]),
-      playlist() {
+      // curPlayList() {
+
+      // },
+      mp3list() {
         this.curIndex = -1;
 
         if (this.$store.state.isSingerMode) {
@@ -158,7 +161,13 @@
           }
           return this.list
         } else {
-          return this.$store.state.playlist[this.$store.state.curListIndex].list;
+          let list;
+          if(this.curGroupIndex === 0) {
+            list = this.playlist
+          } else {
+            list = this.groupList[this.curGroupIndex].playlist;
+          }
+          return list[this.$store.state.curListIndex].list;
         }
       }
     },
@@ -244,13 +253,18 @@
       openCover() {
         this.openFullscreen = true;
       },
-      onSliderChange() {
-        this.linear = this.linear - 0;
+      onSliderChange(isStart) {
+        this.linear = parseInt(this.linear - 0);
         // alert(this.linear)
-        callplus('seek', [this.linear], function(data) {})
+        // clearTimeout(this.startSlideHandle);
+
+        this.startSlideHandle = setTimeout(() => {
+          if (isStart !== true)
+          callplus('seek', [this.linear], function(data) {})
 
 
-        this.startSlide();
+          this.startSlide();
+        }, 1000)
 
       },
       startSlide() {
@@ -259,6 +273,15 @@
           this.linear += 1;
 
           this.curr = window.formatTime(this.linear);
+
+          if (this.curr === this.total) {
+            this.stopSlide();
+            this.isPause = true;
+            this.linear = 0;
+            this.curr = window.formatTime(this.linear);
+            this.playIcon = 'play_arrow'
+
+          }
         }, 1000)
       },
       stopSlide() {
@@ -292,6 +315,7 @@
         })
       },
       refreshList: function() {
+        let self = this;
         callplus('getList', {
           url: self.musicDirectory
         }, function(data) {
@@ -306,6 +330,10 @@
               item.favorited = true;
             }
           }
+
+          self.$nextTick(()=> {
+            self.$refs.mp3List.$el.scrollTop = 0;
+          })
         })
       },
       onOpen($event) {
@@ -350,7 +378,7 @@
 
           self.total = window.formatTime(s);
 
-          self.onSliderChange()
+          self.onSliderChange(true)
 
           // alert()
         })
