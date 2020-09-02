@@ -205,7 +205,7 @@ const COMMANDS = {
 
               // alert(length)
               if (!isFromStart) {
-                var pos = Math.random() * (length - 15);
+                var pos = parseInt(Math.random() * (length - 15));
 
                 self.player.seekTo(pos);
               }
@@ -306,7 +306,7 @@ const COMMANDS = {
           } else {
             location = '../index.html'
           }
-          
+
         },
 
     }

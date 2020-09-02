@@ -253,12 +253,13 @@
       openCover() {
         this.openFullscreen = true;
       },
-      onSliderChange() {
+      onSliderChange(isStart) {
         this.linear = parseInt(this.linear - 0);
         // alert(this.linear)
-        clearTimeout(this.startSlideHandle);
+        // clearTimeout(this.startSlideHandle);
 
         this.startSlideHandle = setTimeout(() => {
+          if (isStart !== true)
           callplus('seek', [this.linear], function(data) {})
 
 
@@ -276,7 +277,10 @@
           if (this.curr === this.total) {
             this.stopSlide();
             this.isPause = true;
-         
+            this.linear = 0;
+            this.curr = window.formatTime(this.linear);
+            this.playIcon = 'play_arrow'
+
           }
         }, 1000)
       },
@@ -374,7 +378,7 @@
 
           self.total = window.formatTime(s);
 
-          self.onSliderChange()
+          self.onSliderChange(true)
 
           // alert()
         })
