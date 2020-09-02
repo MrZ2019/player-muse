@@ -1,27 +1,24 @@
 <template>
-  <mu-dialog :open="dialog" title="新建" @close="close">
-     <mu-text-field label="名称" fullWidth v-model="listName"/>
-<mu-select-field v-model="groupIndex" :labelFocusClass="['label-foucs']" label="选择分组">
-    <mu-menu-item v-for="item,index in groupList" :key="index" :value="index" :title="item.name" />
-  </mu-select-field>
+  <mu-dialog :open="dialog" title="新建组" @close="close">
+     <mu-text-field label="名称" fullWidth v-model="groupName"/>
+
     <mu-flat-button slot="actions" @click="close" primary label="取消"/>
     <mu-flat-button slot="actions" primary @click="finish" label="确定"/>
   </mu-dialog>
 </template>
 
 <script>
-  import {mapMutations, mapState} from 'vuex';
+  import {mapMutations} from 'vuex';
 
   export default {
     data() {
       return {
         dialog: false,
-        listName: '',
-        groupIndex: 0,
+        groupName: '',
       }
     },
     computed:{
-      ...mapState(['groupList'])
+
     },
     methods: {
       ...mapMutations(['renamePlayList']),
@@ -30,7 +27,7 @@
         this.isRename = isRename;
 
         if (this.isRename) {
-          this.listName = this.$store.state.playlist[this.$store.state.curListIndex].name;
+          this.groupName = this.$store.state.playlist[this.$store.state.curListIndex].name;
         }
       },
 
@@ -40,11 +37,11 @@
       finish() {
         if (this.isRename) {
           this.dialog = false;
-          this.renamePlayList(this.listName);
+          this.renamePlayList(this.groupName);
           alert('成功')
           return
         }
-        this.$store.commit('addPlayList', [this.listName, this.groupIndex]);
+        this.$store.commit('addGroup', this.groupName);
         this.dialog = false;
         alert('添加成功')
       },

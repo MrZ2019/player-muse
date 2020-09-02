@@ -29,6 +29,11 @@ const state = {
   allSongs: [],
   allAlbums: [],
   allSingers: [],
+
+  groupList: [],
+
+  curGroupIndex: -1,
+  curGroup: {},
   lyric: `[ti:你听得到]
 [ar:周杰伦]
 [al:叶惠美]
@@ -119,7 +124,7 @@ const mutations = {
     state.curSinger = name;
     state.isAlbumMode = true;
     state.isSingerMode = false;
-    
+
     window.DB.exec(`SELECT * FROM songs LEFT JOIN albums on
      songs.album_id=albums.id WHERE albums.title=?
      group by songs.id`, [name], (data)=> {
@@ -181,16 +186,47 @@ const mutations = {
        state.playlist = JSON.parse(list);
      }
   },
-  addPlayList(state, name) {
+  getGroup(state) {
+     let list = localStorage.getItem('groupList');
+
+     if (list) {
+       state.groupList = JSON.parse(list);
+     }
+
+     if (state.groupList[0].playlist)
+     state.groupList.unshift({
+       name: '默认分类'
+     })
+  },
+
+  addPlayList(state, [name, groupIndex]) {
     let newItem = {
       name: name,
       list: []
     }
 
-    state.playlist.push(newItem);
+    if (groupIndex === -1) {
+      state.playlist.push(newItem);
 
-    localStorage.setItem('playlist', JSON.stringify(state.playlist));
+      localStorage.setItem('playlist', JSON.stringify(state.playlist));
+    } else {
+      state.groupList[groupIndex].playlist.push(newItem);
+
+      localStorage.setItem('groupList', JSON.stringify(state.groupList));
+    }
+
   },
+  addGroup(state, name) {
+    let newItem = {
+      name: name,
+      playlist: []
+    }
+
+    state.groupList.push(newItem);
+
+    localStorage.setItem('groupList', JSON.stringify(state.groupList));
+  },
+
  savePlayList(state) {
 
 
@@ -246,6 +282,12 @@ const mutations = {
 
     state.isAll = true;
   },
+  changeCurListGroup(state, {index, item}) {
+    state.curGroupIndex = index;
+
+    state.curGroup = item;
+  },
+
   changeListRandom(state, index) {
 
     state.curListIndex = index;
