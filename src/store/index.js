@@ -243,7 +243,12 @@ const mutations = {
 
      if (settings) {
        state.settings = JSON.parse(settings);
+
+       state.curGroupIndex = state.settings.curGroupIndex || 0
+       
+       state.curListIndex = state.settings.curListIndex || -1
      }
+
   },
 
  saveSettings(state, settings) {
@@ -305,12 +310,21 @@ const mutations = {
     state.isAlbumMode = false;
     state.isSingerMode = false;
     state.curListIndex = index;
+    
+    state.settings.curListIndex = index;
+    
+    mutations.saveSettings(state, state.settings);
 
     state.isAll = true;
   },
   changeCurListGroup(state, {index, item}) {
     state.curGroupIndex = index;
     state.curListIndex = - 1;
+
+    state.settings.curGroupIndex = index;
+    state.settings.curListIndex = -1;
+
+    mutations.saveSettings(state, state.settings);
 
     state.curGroup = item;
   },
