@@ -205,7 +205,7 @@ const mutations = {
       list: []
     }
 
-    if (groupIndex === -1) {
+    if (groupIndex === 0) {
       state.playlist.push(newItem);
 
       localStorage.setItem('playlist', JSON.stringify(state.playlist));
@@ -232,6 +232,11 @@ const mutations = {
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
+ saveGroupList(state) {
+
+
+    localStorage.setItem('groupList', JSON.stringify(state.groupList));
+  },
 
   getSettings(state) {
      let settings = localStorage.getItem('settings');
@@ -239,7 +244,7 @@ const mutations = {
      if (settings) {
        state.settings = JSON.parse(settings);
      }
-     },
+  },
 
  saveSettings(state, settings) {
 
@@ -282,7 +287,7 @@ const mutations = {
 
   addItemToList(state, {curGroupIndex, index, item}) {
 
-    if (curGroupIndex === 0) {
+    if ((curGroupIndex - 0) === 0) {
       state.playlist[index].list.push({
         name: item,
       });
@@ -305,10 +310,38 @@ const mutations = {
   },
   changeCurListGroup(state, {index, item}) {
     state.curGroupIndex = index;
+    state.curListIndex = - 1;
 
     state.curGroup = item;
   },
+  moveCurList(state, {index}) {
+    let origin;
+    let originList;
 
+   // alert(1)
+    if (state.curGroupIndex === 0) {
+      origin = state.playlist[state.curListIndex]
+      originList = state.playlist;
+    } else {
+      origin = state.groupList[state.curGroupIndex].playlist[state.curListIndex]
+      originList = state.groupList[state.curGroupIndex].playlist;
+    }
+
+    if (index === 0) {
+      state.playlist.push(origin);
+      originList.splice(state.curListIndex, 1)
+
+    } else {
+      state.groupList[index].playlist.push(origin)
+
+      originList.splice(state.curListIndex, 1)
+
+    }
+      mutations.savePlayList(state);
+      mutations.saveGroupList(state);
+    state.curListIndex = - 1;
+
+  },
   changeListRandom(state, index) {
 
     state.curListIndex = index;

@@ -29,13 +29,19 @@
     },
     methods: {
       handleChange(index) {
-        this.$store.commit('changeCurListGroup', {index, item: this.selectedItem})
+
+        if (this.flag === 'move-list') {
+          this.$store.commit('moveCurList', {index})
+        } else {
+          this.$store.commit('changeCurListGroup', {index, item: this.selectedItem})
+        }
+         
         this.dialog = false;
       },
 
-      showDialog(item) {
+      showDialog(flag) {
         this.dialog = true;
-        this.selectedItem = item;
+        this.flag = flag;
       },
 
       close() {

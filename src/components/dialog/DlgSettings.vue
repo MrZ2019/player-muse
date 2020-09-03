@@ -32,6 +32,11 @@
         }
       }
     },
+    mounted() {
+      if (this.settings.debugMode) {
+        window.vConsole = new VConsole();
+      }
+    },
     computed:{
       ...mapState(['settings'])
     },

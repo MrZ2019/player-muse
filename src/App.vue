@@ -10,6 +10,7 @@
         <mu-menu-item title="新建列表"  @click.native="createList"/>
         <mu-menu-item title="新建组"  @click.native="createListGroup"/>
         <mu-menu-item title="切换组"  @click.native="changeGroup"/>
+        <mu-menu-item title="移动当前列表"  @click.native="movePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="删除当前列表"  @click.native="removePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="重命名当前列表"  @click.native="renamePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="排序模式"   @click.native="goSort" v-show="!isSortMode && curListIndex !== -1" />
@@ -184,6 +185,9 @@ export default {
     },
     changeGroup(index, item) {
       this.$refs.dlgGroupList.showDialog()
+    },
+    movePlayList(index, item) {
+      this.$refs.dlgGroupList.showDialog('move-list')
     },
 
     createList() {

@@ -1,8 +1,21 @@
 <template>
   <mu-dialog :open="dialog" title="播放列表" @close="close">
-      <mu-list @change="handleChange">
-        <mu-list-item :title="item.name" v-for="(item,index) in curPlayList" :value="index"/>
-      </mu-list>
+
+      <el-tabs v-model="activeGroup" @change="handleTabChange">
+          <el-tab-pane :label="g.name" :name="gIndex" v-for="(g, gIndex) in groupList">
+
+            <mu-list @change="handleChange">
+              <mu-list-item :title="item.name" v-for="(item,index) in playlist" :value="index" v-if="gIndex === 0"/>
+
+              <mu-list-item :title="item.name" v-for="(item,index) in g.playlist" :value="index" v-if="gIndex !== 0"/>
+            </mu-list>
+
+
+          </el-tab-pane>
+        </el-tabs>
+
+        <div>
+      </div>
   </mu-dialog>
 </template>
 
@@ -13,6 +26,7 @@
     data() {
       return {
         dialog: false,
+        activeGroup: '',
         selectedItem: '',
       }
     },
@@ -29,7 +43,7 @@
     },
     methods: {
       handleChange(index) {
-        this.$store.commit('addItemToList', {index, item: this.selectedItem, curGroupIndex: this.curGroupIndex})
+        this.$store.commit('addItemToList', {index, item: this.selectedItem, curGroupIndex: this.activeGroup})
         this.dialog = false;
       },
 
@@ -46,4 +60,10 @@
 </script>
 
 <style>
+
+  .el-tab-pane {
+    overflow: auto;
+    max-height: 320px;
+    min-height: 128px;
+  }
 </style>
