@@ -193,7 +193,7 @@ const mutations = {
        state.groupList = JSON.parse(list);
      }
 
-     if (state.groupList[0].playlist)
+     if (state.groupList.length === 0 || state.groupList[0].playlist)
      state.groupList.unshift({
        name: '默认分类'
      })
