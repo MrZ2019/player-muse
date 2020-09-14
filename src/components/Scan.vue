@@ -2,6 +2,8 @@
   <div class="scan">
     <div class="row">
       <mu-raised-button label="开始扫描" class="demo-raised-button" secondary @click="startScan" />
+      
+      <mu-raised-button label="清空" class="demo-raised-button" secondary @click="clear" />
     </div>
     <div class="row progress">
       {{cur}} / {{total}}
@@ -66,6 +68,15 @@
             self.$router.push('/mp3-list')
           });
         })
+      },
+      
+      clear() {
+        
+        this.db.exec('DROP TABLE albums')
+        this.db.exec('DROP TABLE songs')
+        this.db.exec('DROP TABLE singers')
+        
+        window.location.reload();
       },
 
       startScan() {

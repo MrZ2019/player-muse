@@ -81,7 +81,120 @@ window.getCover = function(image) {
     return base64;
 }
 const COMMANDS = {
+    backup(data, name) {
+      data = window.JSON.stringify(data)
 
+      plus.io.resolveLocalFileSystemURL( "/storage/emulated/0/_pc/other/muse-backup/", function( entry ) {
+
+        entry.getFile(name + '.txt', {create: true}, function(entry) {
+          entry.createWriter( function ( writer ) {
+          	// Write data to file.
+          	writer.write( data );
+          }, function ( e ) {
+          	alert( e.message );
+          } );
+        })
+       });
+    },
+    getRestoreList() {
+
+      plus.io.resolveLocalFileSystemURL( "/storage/emulated/0/_pc/other/muse-backup/", function( entry ) {
+          var directoryReader = entry.createReader();
+          directoryReader.readEntries( function( entries ){
+            var i;
+            let list = [];
+            for( i=0; i < entries.length; i++ ) {
+              list.push( entries[i].name );
+            }
+
+            object.postMessage({
+              data: list,
+              type: 'getRestoreList',
+              name: 'getRestoreList'
+            }, '*')
+          }, function ( e ) {
+            alert( "Read entries failed: " + e.message );
+          } );
+
+      });
+    },
+
+    restore(file) {
+      // data = window.JSON.stringify(data)
+
+      plus.io.resolveLocalFileSystemURL( "/storage/emulated/0/_pc/other/muse-backup/", function( entry ) {
+
+        entry.getFile(file, {create: false}, function(entry) {
+            let reader = new plus.io.FileReader();
+            reader.onloadend = function ( e ) {
+                 
+                  object.postMessage({
+                    data: e.target.result,
+                    type: 'restore',
+                    name: 'restore'
+                  }, '*')
+
+            };
+            reader.readAsText( entry );
+          }, function ( e ) {
+          	alert( e.message );
+          } );
+        })
+
+    },
+    removeRestore(file) {
+      // data = window.JSON.stringify(data)
+
+      plus.io.resolveLocalFileSystemURL( "/storage/emulated/0/_pc/other/muse-backup/", function( entry ) {
+
+        entry.getFile(file, {create: false}, function(entry) {
+            entry.remove(function(e) {
+                  object.postMessage({
+                    data: [],
+                    type: 'removeRestore',
+                    name: 'removeRestore'
+                  }, '*')
+            }, function(e) {
+              alert(e.message)
+            });
+          }, function ( e ) {
+          	alert( e.message );
+          } );
+        })
+
+    },
+
+    gallery() {
+        plus.gallery.pick( function(path){
+          plus.io.resolveLocalFileSystemURL(path, function(entry) {
+            entry.file((file) => {
+              var reader = new plus.io.FileReader();
+              reader.onloadend = function(e) {
+
+
+                try {
+
+                  // alert(list.length);
+                  object.postMessage({
+                    data: e.target.result,
+                    type: 'gallery',
+                    name: 'gallery'
+                  }, '*')
+
+                } catch (e) {
+                  alert(e)
+                }
+
+              }
+
+              reader.readAsDataURL(file);
+
+            });
+          })
+        }, function ( e ) {
+          console.log( "取消选择图片" );
+        }, {filter:"image"} );
+    },
     getCover: function(p) {
 
       plus.io.resolveLocalFileSystemURL(p, function(entry) {

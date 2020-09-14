@@ -1,50 +1,96 @@
 <template>
   <mu-dialog :open="dialog" title="播放列表" @close="close">
+    <div slot="title" class="title-box">播放列表
+      <mu-icon value="sort" :color="activeColor" @click.native="toggleSort"/>
+      <mu-icon-button icon="add" @click='addList' />
+    </div>
+    <el-tabs v-model="activeGroup">
+      <el-tab-pane :label="g.name" :name="gIndex + ''" v-for="(g, gIndex) in groupList">
 
-      <el-tabs v-model="activeGroup" @change="handleTabChange">
-          <el-tab-pane :label="g.name" :name="gIndex" v-for="(g, gIndex) in groupList">
+        <mu-list>
 
-            <mu-list @change="handleChange">
-              <mu-list-item :title="item.name" v-for="(item,index) in playlist" :value="index" v-if="gIndex === 0"/>
+          <draggable :list="playlist" class="list-group" ghost-class="ghost"  v-if="gIndex === 0" s
+            @start="dragging = true" @end="onDragEnd" :disabled="!isSort">
+            <mu-list-item  v-for="(item,index) in playlist" :value="index" @click="handleChange(index)">
+              <span class="title">{{item.name}}</span>
+              <mu-icon value="remove_circle" color="gray" @click.stop="remove(index)" />
+            </mu-list-item>
 
-              <mu-list-item :title="item.name" v-for="(item,index) in g.playlist" :value="index" v-if="gIndex !== 0"/>
-            </mu-list>
+          </draggable>
+
+          <draggable :list="g.playlist" class="list-group" ghost-class="ghost"  v-if="gIndex !== 0"
+            @start="dragging = true" @end="onDragEnd"  :disabled="!isSort">
+            <mu-list-item v-for="(item,index) in g.playlist" :value="index" v-if="item" @click="handleChange(index)">
+              <span class="title">{{item.name}}</span>
+              <mu-icon value="remove_circle" color="gray" @click.stop="remove(index)" />
+            </mu-list-item>
+          </draggable>
+
+        </mu-list>
 
 
-          </el-tab-pane>
-        </el-tabs>
+      </el-tab-pane>
+    </el-tabs>
 
-        <div>
-      </div>
+    <div>
+    </div>
   </mu-dialog>
 </template>
 
 <script>
+  import {
+    mapState
+  } from 'vuex'
 
-  import {mapState} from 'vuex'
+  import draggable from "vuedraggable";
   export default {
     data() {
       return {
         dialog: false,
         activeGroup: '',
         selectedItem: '',
+        dragging: false,
+
+        isSort: false,
       }
     },
-    computed:{
-      ...mapState(['playlist', 'groupList', 'curGroupIndex']
-      ),
+    components: {
+      draggable
+    },
+    computed: {
+      ...mapState(['playlist', 'groupList', 'curGroupIndex', 'settings']),
       curPlayList() {
-        if(this.curGroupIndex === 0) {
+        if (this.curGroupIndex === 0) {
           return this.playlist
         } else {
           return this.groupList[this.curGroupIndex].playlist;
         }
       },
+
+      activeColor() {
+        return this.isSort ? (this.settings.theme ||  'purple') : ''
+      }
     },
     methods: {
       handleChange(index) {
-        this.$store.commit('addItemToList', {index, item: this.selectedItem, curGroupIndex: this.activeGroup})
+        // alert()
+        this.$store.commit('addItemToList', {
+          index,
+          item: this.selectedItem,
+          curGroupIndex: this.activeGroup
+        })
         this.dialog = false;
+      },
+      onDragEnd() {
+        this.dragging = false;
+        this.$store.commit('savePlayList')
+        this.$store.commit('saveGroupList')
+      },
+      addList() {
+        let name = prompt("新建列表", "")
+
+        if (name)
+        this.$store.commit('addPlayList', [name, this.activeGroup]);
       },
 
       showDialog(item) {
@@ -55,15 +101,33 @@
       close() {
         this.dialog = false;
       },
+
+      remove(index) {
+        this.$store.commit('removePlayList', [index, this.activeGroup])
+      },
+
+      toggleSort() {
+        this.isSort = !this.isSort;
+      },
     }
   }
 </script>
 
 <style>
-
   .el-tab-pane {
     overflow: auto;
     max-height: 320px;
     min-height: 128px;
+  }
+
+  .title-box {
+    display: flex;
+    align-items: center;
+  }
+
+  .title,
+  .mu-icon {
+    display: inline-block;
+    vertical-align: middle;
   }
 </style>

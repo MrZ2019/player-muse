@@ -30,10 +30,14 @@ const state = {
   allAlbums: [],
   allSingers: [],
 
+  allAlbums2: [],
+
   groupList: [],
 
   curGroupIndex: 0,
   curGroup: {},
+
+  imageData: '',
   lyric: `[ti:你听得到]
 [ar:周杰伦]
 [al:叶惠美]
@@ -86,13 +90,34 @@ const state = {
 [03:11.28]你的香味一直徘徊
 [03:16.13]我舍不得离开
 [03:18.99]我想我是太过依赖
-[03:23.53]在挂电话的刚才
+[03:23.53]在挂电话的刚才s
 [03:27.67]坚持学单纯的小孩
 [03:32.59]我舍不得离开
 [03:37.42]`,
 }
 
+const actions = {
+  getAllAlbums() {
+    return new Promise(function (resolve) {
+      window.DB.exec('SELECT * FROM albums', null, (data)=> {
+        resolve(data);
+      })
+    })
+  }
+}
 const mutations = {
+  setImage(state, data) {
+    state.imageData = data
+
+    localStorage.setItem('imageData', data);
+  },
+  getImage(state) {
+    let data = localStorage.getItem('imageData');
+
+    if (data) {
+      state.imageData = data;
+    }
+  },
 
   getAllSongs(state) {
 
@@ -161,6 +186,8 @@ const mutations = {
 
   },
 
+
+
   setAlbum(state, data) {
     state.isAlbumMode = true;
     state.isSingerMode = false;
@@ -204,8 +231,9 @@ const mutations = {
       name: name,
       list: []
     }
-
+   groupIndex -= 0;
     if (groupIndex === 0) {
+
       state.playlist.push(newItem);
 
       localStorage.setItem('playlist', JSON.stringify(state.playlist));
@@ -245,7 +273,7 @@ const mutations = {
        state.settings = JSON.parse(settings);
 
        state.curGroupIndex = state.settings.curGroupIndex || 0
-       
+
        state.curListIndex = state.settings.curListIndex || -1
      }
 
@@ -266,16 +294,32 @@ const mutations = {
     state.groupList.splice(index, 1);
     state.curGroupIndex = 0;
 
+    state.settings.curGroupIndex = state.curGroupIndex;
+
     localStorage.setItem('groupList', JSON.stringify(state.groupList));
   },
 
-  removePlayList(state ) {
+  removePlayList(state, [index, curGroupIndex]) {
 
-    state.playlist.splice(state.curListIndex, 1)
+    index = index || state.curListIndex;
+    curGroupIndex = curGroupIndex || state.curGroupIndex
+    curGroupIndex -= 0;
+    if (curGroupIndex === 0) {
+      state.playlist.splice(index, 1)
+      mutations.savePlayList(state)
+    } else {
+      state.groupList[curGroupIndex].playlist.splice(index, 1);
+      mutations.saveGroupList(state)
+    }
 
-    state.curListIndex = -1;
+    if (curGroupIndex === state.curGroupIndex) {
+      state.curListIndex = -1;
+    }
 
-    localStorage.setItem('playlist', JSON.stringify(state.playlist));
+    state.settings.curListIndex = state.curListIndex;
+
+    mutations.saveSettings(state);
+
   },
   renamePlayList(state, name) {
     // alert(name)
@@ -310,9 +354,9 @@ const mutations = {
     state.isAlbumMode = false;
     state.isSingerMode = false;
     state.curListIndex = index;
-    
+
     state.settings.curListIndex = index;
-    
+
     mutations.saveSettings(state, state.settings);
 
     state.isAll = true;
@@ -370,5 +414,5 @@ const mutations = {
 }
 
 export default new Vuex.Store({
-  state, mutations
+  state, mutations,  actions, 
 })

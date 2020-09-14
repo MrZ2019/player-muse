@@ -17,7 +17,7 @@
     </div>
 
     <mu-list ref="mp3List" @scroll.native="onScroll">
-      <draggable :list="playlist" :disabled="!isSortMode" class="list-group" ghost-class="ghost" :move="checkMove"
+      <draggable :list="playlist" :disabled="!isSortMode" class="list-group" ghost-class="ghost"
         @start="dragging = true" @end="onDragEnd">
         <mu-list-item v-for="(i,index) in mp3list" :class="{active: curIndex == index}">
 
@@ -48,7 +48,7 @@
     <div class="cover-box">
       <div class="top-box">
         <img :src="cover" alt="" @click="openCover">
-        <mu-icon size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex !== -1 || isPlay"></mu-icon>
+        <mu-icon :size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex !== -1 || isPlay"></mu-icon>
       </div>
       <div class="right-box">
         <div class="curr">{{curr}}</div>
@@ -109,6 +109,7 @@
         openFullscreen: false,
         playIcon: 'play_arrow',
         iconColor: '',
+        isPlay: false,
         dragging: false,
         enabled: true,
         lastTags: {},
