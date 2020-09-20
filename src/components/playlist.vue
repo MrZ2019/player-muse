@@ -1,9 +1,11 @@
 <template>
-  <mu-dialog :open="dialog" title="播放列表" @close="close">
+
+  <mu-dialog :open="dialog" title="播放列表" @close="close" dialogClass="dlg-playlist">
     <div slot="title" class="title-box">播放列表
       <mu-icon value="sort" :color="activeColor" @click.native="toggleSort"/>
       <mu-icon-button icon="add" @click='addList' />
     </div>
+    <div>
     <el-tabs v-model="activeGroup">
       <el-tab-pane :label="g.name" :name="gIndex + ''" v-for="(g, gIndex) in groupList">
 
@@ -33,6 +35,7 @@
     </el-tabs>
 
     <div>
+    </div>
     </div>
   </mu-dialog>
 </template>
@@ -113,7 +116,7 @@
   }
 </script>
 
-<style>
+<style >
   .el-tab-pane {
     overflow: auto;
     max-height: 320px;
@@ -129,5 +132,28 @@
   .mu-icon {
     display: inline-block;
     vertical-align: middle;
+  }
+
+  .dlg-playlist .el-tabs__item {
+    padding: 0 5px;
+  }
+
+  .dlg-playlist .mu-dialog-body {
+    padding: 10px;
+  }
+
+  .dlg-playlist.mu-dialog {
+    width: 90%;
+  }
+  .dlg-playlist .mu-list {
+    pading: 2px 0;
+  }
+ .dlg-playlist .mu-item {
+    padding: 4px 0;
+    min-height: 40px;
+  }
+
+  .dlg-playlist .el-tabs__header {
+    margin-bottom: 5px;
   }
 </style>

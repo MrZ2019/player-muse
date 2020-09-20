@@ -49,6 +49,7 @@
       <div class="top-box">
         <img :src="cover" alt="" @click="openCover">
         <mu-icon :size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex !== -1 || isPlay"></mu-icon>
+        <mu-icon :size="28" :color="iconColor" value="child_care" @click="locate" v-show="curIndex !== -1"></mu-icon>
       </div>
       <div class="right-box">
         <div class="curr">{{curr}}</div>
@@ -247,6 +248,9 @@
       togglePlay() {
         this.play(this.name, this.curIndex);
 
+      },
+      locate() {
+        this.$refs.mp3List.$el.querySelector('.active').scrollIntoView()
       },
       close() {
         this.openFullscreen = false;
