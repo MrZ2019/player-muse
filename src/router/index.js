@@ -6,6 +6,7 @@ import Star from '@/components/star'
 import Lyric from '@/components/lyric'
 import Scan from '@/components/scan'
 import Album from '@/components/albumView'
+import Rank from '@/components/rank'
 Vue.use(Router)
 
 export default new Router({
@@ -39,6 +40,11 @@ export default new Router({
       path: '/album',
       name: 'album',
       component: Album
+    },
+    {
+      path: '/rank',
+      name: 'rank',
+      component: Rank
     },
 
     {

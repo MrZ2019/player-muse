@@ -23,6 +23,7 @@
         <mu-menu-item title="刷新"  @click.native="reload"/>
         <mu-menu-item title="备份与恢复"  @click.native="showBackup"/>
         <mu-menu-item title="专辑视图"  @click.native="openAlbum"/>
+        <mu-menu-item title="听歌排行"  @click.native="openRank"/>
         <mu-menu-item title="退出" @click.native="quit" />
       </mu-icon-menu>
     </mu-appbar>
@@ -222,6 +223,9 @@ export default {
     openAlbum() {
       this.$router.push('/album')
     },
+    openRank() {
+      this.$router.push('/rank')
+    },
 
     renamePlayList() {
       this.$refs.dlgAddPlayList.showDialog(true)
@@ -246,7 +250,7 @@ export default {
       localStorage.setItem('background', this.colors.hex)
 
       this.settings.theme =  this.colors.hex;
-      
+
       this.$store.commit('saveSettings');
 
     },
