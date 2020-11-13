@@ -1,6 +1,6 @@
 
 window.config = {
-  isOut: false,
+  isOut: true,
   env: {
     lyric: {
       dev: '/api2/',
