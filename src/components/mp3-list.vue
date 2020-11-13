@@ -47,7 +47,7 @@
 
     <div class="cover-box">
       <div class="top-box">
-        <img :src="cover" alt="" @click="openCover">
+        <img :src="cover" alt="" @click="openCover" class="rotate" :class="{paused: isPause}">
         <mu-icon :size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex !== -1 || isPlay"></mu-icon>
         <mu-icon :size="28" :color="iconColor" value="child_care" @click="locate" v-show="curIndex !== -1"></mu-icon>
       </div>
@@ -547,5 +547,23 @@
 
   .big-cover-box img {
     width: 100%;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotateZ(0deg);
+    }
+    to {
+      transform: rotateZ(359deg);
+    }
+  }
+  .rotate {
+    animation: rotate 7s infinite;
+    animation-timing-function: linear;
+    // border: 2px solid;
+  }
+
+  .rotate.paused {
+    animation-play-state:paused;
   }
 </style>
