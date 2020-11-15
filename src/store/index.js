@@ -38,6 +38,9 @@ const state = {
   curGroup: {},
 
   imageData: '',
+
+  bgOpacity: .5,
+  rankList: [],
   lyric: `[ti:你听得到]
 [ar:周杰伦]
 [al:叶惠美]
@@ -116,6 +119,14 @@ const mutations = {
 
     if (data) {
       state.imageData = data;
+    }
+  },
+
+  getRank(state) {
+    let data = localStorage.getItem('rankList');
+
+    if (data) {
+      state.rankList = JSON.parse(data);
     }
   },
 
@@ -274,7 +285,11 @@ const mutations = {
 
        state.curGroupIndex = state.settings.curGroupIndex || 0
 
-       state.curListIndex = state.settings.curListIndex || -1
+       state.curListIndex = state.settings.curListIndex || -1;
+
+       state.bgOpacity = state.settings.bgOpacity || .5;
+       state.settings.rankTimeout = state.settings.rankTimeout || 15;
+
      }
 
   },
@@ -409,10 +424,37 @@ const mutations = {
   setLyric(state, lyric) {
 
     state.lyric = lyric;
+  },
+
+  addRank(state, obj) {
+    let find = false;
+
+    for (let i = 0; i < state.rankList.length; i++) {
+      let item = state.rankList[i];
+
+      if (item.name == obj.name) {
+        item.count++;
+        find = true;
+        break;
+      }
+    }
+
+    if (find === false) {
+      state.rankList.push({
+        name: obj.name,
+        count: 1
+      })
+
+      state.rankList = state.rankList.sort((a, b) => {
+        return b.count - a.count;
+      })
+    }
+
+    localStorage.setItem('rankList', JSON.stringify(state.rankList));
   }
 
 }
 
 export default new Vuex.Store({
-  state, mutations,  actions, 
+  state, mutations,  actions,
 })

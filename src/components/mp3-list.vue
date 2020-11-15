@@ -44,34 +44,17 @@
       </draggable>
 
     </mu-list>
-
-    <div class="cover-box">
-      <div class="top-box">
-        <img :src="cover" alt="" @click="openCover" class="rotate" :class="{paused: isPause}">
-        <mu-icon :size="36" :color="iconColor" :value="playIcon" @click="togglePlay" v-show="curIndex !== -1 || isPlay"></mu-icon>
-        <mu-icon :size="28" :color="iconColor" value="child_care" @click="locate" v-show="curIndex !== -1"></mu-icon>
-      </div>
-      <div class="right-box">
-        <div class="curr">{{curr}}</div>
-        <mu-slider class="demo-slider" v-model="linear" @change="onSliderChange" :max="max" color='yellow'></mu-slider>
-        <div class="total">{{total}}</div>
-      </div>
-    </div>
-
+    
     <DlgPlayList ref="dlgPlayList"></DlgPlayList>
 
+    <player ref="myplayer"></player>
 
-    <mu-dialog width="360" transition="slide-bottom" :open="openFullscreen" @close="close">
-      <div class="title">{{albumTitle}} - {{tags.artist}}</div>
-      <div class="big-cover-box">
-        <img :src="cover" alt="">
-      </div>
-    </mu-dialog>
   </div>
 </template>
 
 <script>
   import DlgPlayList from './playlist';
+  import player from './player';
   import draggable from "vuedraggable";
   import {
     mapState
@@ -109,11 +92,13 @@
         curr: '',
         openFullscreen: false,
         playIcon: 'play_arrow',
-        iconColor: '',
+
         isPlay: false,
         dragging: false,
         enabled: true,
         lastTags: {},
+
+
       }
     },
     watch: {
@@ -136,11 +121,14 @@
     },
     computed: {
       ...mapState(['isAll', 'isSortMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
-        'isFromList', 'playlist', 'groupList', 'curGroupIndex'
+        'isFromList', 'playlist', 'groupList', 'curGroupIndex', 'settings'
       ]),
       // curPlayList() {
 
       // },
+      iconColor() {
+        return this.$parent.themeColor;
+      },
       mp3list() {
         this.curIndex = -1;
 
@@ -175,10 +163,12 @@
     },
     components: {
       DlgPlayList,
-      draggable
+      draggable,
+      player
     },
     mounted() {
-      this.iconColor = localStorage.getItem('background')
+
+      this.iconColor = window.theme;
 
       // alert(this.iconColor)
       window.Hub.$on('refresh', function() {
@@ -348,119 +338,38 @@
       onClick(index) {
         this.curIndex = index
       },
+      rankHandle() {
+        this.curSongTimer++;
+
+        if (this.curSongTimer >= this.settings.rankTimeout) {
+          this.stopRankTimer();
+        }
+      },
+      startRankTimer() {
+        this.curSongTimer = 0;
+        this.rankTimer = setInterval(this.rankHandle, 1000)
+        this.isRankTimerStop = false;
+      },
+      resumeRankTimer() {
+        this.rankTimer = setInterval(this.rankHandle, 1000)
+      },
+      pauseRankTimer() {
+        clearInterval(this.rankTimer);
+      },
+      stopRankTimer() {
+        clearInterval(this.rankTimer);
+        this.isRankTimerStop = true;
+
+        if (this.curSongTimer >= this.settings.rankTimeout) {
+          this.$store.commit('addRank', {name: this.name})
+        }
+
+        this.curSongTimer = 0;
+      },
       play(name, index, isFromStart, isReplay) {
-        let self = this;
-        if (!isReplay && index == this.curIndex && this.name == name) {
 
-          if (this.isPause) {
-            callplus('resume', [], function(isPaused) {})
-            this.isPause = false;
-            this.startSlide();
-          } else {
-            callplus('pause', [], function(isPaused) {})
-
-            this.isPause = true;
-            this.stopSlide();
-
-          }
-
-          this.playIcon = this.isPause ? 'play_arrow' : 'pause_arrow';
-          return
-        }
-
-
-
-        self.isPlay = true;
-        this.isPause = false;
-        this.playIcon = this.isPause ? 'play_arrow' : 'pause_arrow';
         this.curIndex = index;
-        this.name = name;
-        var p = self.musicDirectory + name
-        callplus('play', [self.musicDirectory + name, isFromStart], function(data) {
-          let s = data.data.length;
-          self.max = Math.ceil(s);
-          self.linear = data.data.pos - 0;
-
-          self.total = window.formatTime(s);
-
-          self.onSliderChange(true)
-
-          // alert()
-        })
-
-        try {
-          let song = name.split('-');
-
-          if (song[1]) {
-            song = song[1].trim();
-            let index = song.indexOf('.');
-            song = song.slice(0, index)
-          }
-
-
-          this.$axios.get(this.$apis.lyric + song).then((res) => {
-            res = res.data;
-            if (res.result[0]) {
-              let s = res.result[0].lrc;
-
-              let index = s.indexOf('/lrc/')
-
-              let lrc = s.slice(index + 4);
-
-
-              this.$axios.get(this.$apis.lrc + lrc).then((res) => {
-
-                this.$store.commit('setLyric', res.data)
-              }).catch((e) => {
-                // alert(e)
-              })
-
-            }
-          }).catch((e) => {
-            // alert(e)
-          })
-        } catch (e) {
-          alert(e)
-        }
-
-        callplus('getCover', [p], function(res) {
-          displayCover(res.data)
-        })
-
-        function displayCover(str) {
-          let arr = str.split(',');
-          let data = window.atob(arr[1])
-          let mime = arr[0].match(/:(.*?);/)[1]
-          let ia = new Uint8Array(data.length)
-          for (var i = 0; i < data.length; i++) {
-            ia[i] = data.charCodeAt(i)
-          }
-          var blob = new Blob([ia], {
-            type: mime
-          })
-
-          try {
-            let url = name;
-            ID3.loadTags(url, function() {
-              var tags = ID3.getAllTags(url);
-              self.tags = tags;
-              self.albumTitle = tags.title;
-              var image = tags.picture;
-              if (image) {
-                let base64 = window.getCover(image)
-                self.cover = base64;
-              }
-            }, {
-              tags: ["title", "artist", "album", "picture"],
-              dataReader: ID3.FileAPIReader(new window.File([blob], name, {
-                // type: file.type
-              }))
-            });
-          } catch (e) {
-            alert(e)
-          }
-        }
-
+        this.$refs.myplayer.play.apply(this.$refs.myplayer, arguments)
 
       }
     }
@@ -510,11 +419,6 @@
     display: flex;
     flex-direction: column;
 
-    .top-box {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
 
     .mu-list {
       min-height: 60%;
@@ -529,41 +433,7 @@
     .singer {
       padding: 0 0 0 16px;
     }
-
-    .cover-box {
-      flex: 1;
-      background-color: #fff;
-      padding: 32px;
-
-      img {
-        max-height: 100%;
-        max-width: 100%;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-      }
     }
-  }
 
-  .big-cover-box img {
-    width: 100%;
-  }
 
-  @keyframes rotate {
-    from {
-      transform: rotateZ(0deg);
-    }
-    to {
-      transform: rotateZ(359deg);
-    }
-  }
-  .rotate {
-    animation: rotate 7s infinite;
-    animation-timing-function: linear;
-    // border: 2px solid;
-  }
-
-  .rotate.paused {
-    animation-play-state:paused;
-  }
 </style>

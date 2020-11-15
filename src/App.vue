@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <div class="image-box" :style="{'backgroundImage': 'url(' + imageData + ')'}">
+    <div class="image-box" :style="{'backgroundImage': 'url(' + imageData + ')', opacity: bgOpacity}">
 
     </div>
     <mu-appbar :title="listName" :style="styleObj">
       <mu-icon-button icon="menu" slot="left" @click.native="open = true" />
       <mu-icon-button icon="title" slot="right" @click.native="goLyric" v-show="!isAlbumView" />
-      <mu-icon-button icon="refresh" slot="right"  @click='refresh' v-show="!isStar && !isAlbumView"/>
+      <mu-icon-button icon="refresh" slot="right"  @click='refresh' v-show="!isStar && !isAlbumView && !isRankView"/>
+      <mu-icon-button icon="list" slot="right"  @click='backList' v-show="!isMainView"/>
       <mu-icon-button :icon="icon" slot="right"  @click='goStar'/>
       <mu-icon-menu icon="more_vert" slot="right">
         <mu-menu-item title="主题色" @click.native="openPicker"/>
@@ -47,7 +48,7 @@
     </mu-drawer>
 
     <mu-dialog :open="dialog" title="主题色" @close="closePicker">
-
+         <mu-checkbox label="背景图片主色" v-model="isFollowImage"/>
         <picker  v-model="colors"></picker>
         <mu-flat-button slot="actions" @click="closePicker" primary label="取消"/>
         <mu-flat-button slot="actions" primary @click="confirmPicker" label="确定"/>
@@ -59,7 +60,12 @@
       <DlgSettings ref="dlgSettings"></DlgSettings>
       <DlgGroupList ref="dlgGroupList"></DlgGroupList>
       <DlgBackup ref="dlgBackup"></DlgBackup>
+
+      <canvas id="myCanvas"></canvas>
+      <img id="imgs" src="" width='100'></img>
   </div>
+
+
 </template>
 <script>
 
@@ -84,10 +90,13 @@ export default {
       styleObj: {
         background: ''
       },
+      isFollowImage: false,
+      imageColor: '',
+      // themeColor: '',
     }
   },
   computed: {
-      ...mapState(['playlist', 'curListIndex', 'isSortMode', 'settings', 'groupList', 'curGroupIndex', 'imageData']
+      ...mapState(['playlist', 'curListIndex', 'isSortMode', 'settings', 'groupList', 'curGroupIndex', 'imageData', 'bgOpacity']
       ),
       curPlayList() {
         if(this.curGroupIndex === 0) {
@@ -111,20 +120,52 @@ export default {
         return this.$route.path == '/album';
       },
 
+      isMainView() {
+        return this.$route.path == '/mp3-list' || this.$route.path == '/'  ;
+      },
+
+      isRankView() {
+        return this.$route.path == '/rank';
+      },
+
+
+      themeColor() {
+
+        return  this.settings.isFollowImage ? this.imageColor: this.colors.hex;
+      },
       theme() {
+
+        var color = this.imageColor;
+         color = this.settings.isFollowImage ? this.imageColor: this.colors.hex;
+
+        window.theme = color;
         return (
         `.mu-slider-fill
         {
-          background: ${this.colors.hex} !important;
+          background: ${color} !important;
         }
 
         .mu-slider-thumb {
-          color: ${this.colors.hex} !important;
-          background: ${this.colors.hex} !important;
+          color: ${color} !important;
+          background: ${color} !important;
         }
 
         .mu-flat-button-primary {
-           color: ${this.colors.hex} !important;
+           color: ${color} !important;
+        }
+
+        .mu-raised-button {
+          background: ${color} !important;
+        }
+
+        .mu-switch-thumb {
+          color: ${color} !important;
+          background: ${color} !important;
+        }
+
+        .mu-switch-track {
+          background: ${color} !important;
+          opacity: .5;
         }
         `)
       },
@@ -140,12 +181,36 @@ export default {
       }
     },
 
+    theme: {
+      deep: true,
+      immediate: true,
+    },
+
+    isFollowImage(val) {
+      this.settings.isFollowImage = val;
+      this.$store.commit('saveSettings');
+
+    if (val) {
+
+      if (this.imageColor) {
+         this.styleObj.background = this.imageColor;
+      } else {
+
+      }
+
+    } else {
+      this.styleObj.background = this.bg;
+    }
+    },
+
    theme(newVal) {
 
      document.getElementById('theme').innerHTML = newVal
    },
 
    colors(newVal) {
+
+     if (!this.settings.isFollowImage)
      this.styleObj.background = newVal.hex;
    },
 
@@ -155,14 +220,7 @@ export default {
   },
   mounted() {
     window.$V = this;
-    let bg = localStorage.getItem('background');
 
-    window.settingsBg = bg;
-
-    this.colors = {
-      hex: bg,
-    }
-    this.styleObj.background = bg;
 
     this.$store.commit('getPlayList')
     this.$store.commit('getSettings')
@@ -174,6 +232,24 @@ export default {
     this.$store.commit('getGroup')
 
      this.$store.commit('getImage')
+     this.$store.commit('getRank')
+
+    let bg = localStorage.getItem('background');
+    let imageColor = localStorage.getItem('imageColor');
+
+    this.imageColor = imageColor;
+    this.bg = bg;
+
+    window.settingsBg = bg;
+
+    this.colors = {
+      hex: bg,
+    }
+
+    this.isFollowImage = this.settings.isFollowImage;
+
+
+
 
 
 
@@ -236,20 +312,38 @@ export default {
     openGallery() {
       callplus('gallery', [], (res)=> {
         this.$store.commit('setImage', res.data)
+
+        this.getImageColor();
       })
+    },
+    getImageColor() {
+      var canvas=document.getElementById('myCanvas');
+
+      var img=document.getElementById('imgs');
+
+      img.src = this.imageData;
+      img.onload = ()=> {
+        let color = window.getImageColor(canvas,img)
+        this.imageColor = color;
+
+
+        localStorage.setItem('imageColor', color)
+
+        this.styleObj.background = color;
+      }
     },
     closePicker() {
       this.dialog = false;
     },
     confirmPicker() {
       this.dialog = false;
-      this.styleObj.background = this.colors.hex;
+      // this.styleObj.background = this.colors.hex;
 
 
 
       localStorage.setItem('background', this.colors.hex)
 
-      this.settings.theme =  this.colors.hex;
+      // this.settings.theme =  this.colors.hex;
 
       this.$store.commit('saveSettings');
 
@@ -270,7 +364,11 @@ export default {
     },
 
     goStar() {
-      this.$router.push(this.$route.path == "/star" ?  '/' : '/star')
+      this.$router.push(this.$route.path == "/star" ?  '/mp3-list' : '/star')
+    },
+
+    backList() {
+      this.$router.push('/mp3-list')
     },
 
     goLyric () {
@@ -306,9 +404,12 @@ export default {
     background-size: cover;
     background-repeat: no-repeat;
     z-index: 100;
-    opacity: .5;
     pointer-events: none;
+  }
 
+  #myCanvas, #imgs {
+    position: absolute;
+    opacity: 0;
   }
 }
 

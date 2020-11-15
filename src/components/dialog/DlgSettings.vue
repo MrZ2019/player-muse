@@ -5,6 +5,7 @@
     </mu-flex>
     <mu-flex class="select-control-row">
       <mu-raised-button label="本地扫描" class="demo-raised-button" primary @click="goScan"/>
+      <mu-raised-button label="背景设置" class="demo-raised-button" primary @click="goBg"/>
     </mu-flex>
 
     <mu-flat-button slot="actions" @click="close" primary label="取消"/>
@@ -26,15 +27,18 @@
     watch: {
       'settings.debugMode'(val) {
         if (val) {
-          window.vConsole = new VConsole();
+          // alert(window.eruda);
+          eruda.init()
         } else {
-          window.vConsole.destroy();
+          // window.vConsole.destroy();
+		  eruda.destroy()
         }
       }
     },
     mounted() {
       if (this.settings.debugMode) {
-        window.vConsole = new VConsole();
+        // window.vConsole = new VConsole();
+		eruda.init()
       }
     },
     computed:{
@@ -56,6 +60,11 @@
       },
       goScan() {
         this.$router.push('/scan')
+        this.dialog = false;
+      },
+
+      goBg() {
+        this.$router.push('/bg')
         this.dialog = false;
       },
 

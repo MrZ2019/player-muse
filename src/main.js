@@ -34,6 +34,8 @@ Vue.prototype.$axios = axios;
 
 import gallery from 'img-vuer'
 
+
+
 Vue.use(gallery, {
   swipeThreshold: 150, // default 100
   isIndexShow: true, // show image index, default true

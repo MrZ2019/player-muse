@@ -7,6 +7,7 @@ import Lyric from '@/components/lyric'
 import Scan from '@/components/scan'
 import Album from '@/components/albumView'
 import Rank from '@/components/rank'
+import Bg from '@/components/bg'
 Vue.use(Router)
 
 export default new Router({
@@ -45,6 +46,11 @@ export default new Router({
       path: '/rank',
       name: 'rank',
       component: Rank
+    },
+    {
+      path: '/bg',
+      name: 'bg',
+      component: Bg
     },
 
     {

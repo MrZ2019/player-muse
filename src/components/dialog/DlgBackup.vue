@@ -36,13 +36,7 @@
       }
     },
     watch: {
-      'settings.debugMode'(val) {
-        if (val) {
-          window.vConsole = new VConsole();
-        } else {
-          window.vConsole.destroy();
-        }
-      }
+
     },
     mounted() {
 

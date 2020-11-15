@@ -71,7 +71,7 @@
       },
 
       activeColor() {
-        return this.isSort ? (this.settings.theme ||  'purple') : ''
+        return this.isSort ? ($V.themeColor ||  'purple') : ''
       }
     },
     methods: {
@@ -134,7 +134,7 @@
     vertical-align: middle;
   }
 
-  .dlg-playlist .el-tabs__item {
+ /* .dlg-playlist .el-tabs__item {
     padding: 0 5px;
   }
 
@@ -155,5 +155,5 @@
 
   .dlg-playlist .el-tabs__header {
     margin-bottom: 5px;
-  }
+  } */
 </style>
