@@ -21,6 +21,8 @@
         @start="dragging = true" @end="onDragEnd">
         <mu-list-item v-for="(i,index) in mp3list" :class="{active: curIndex == index}">
 
+          <mu-checkbox name="group" :nativeValue="index" v-model="checkList" label="" class="demo-checkbox" v-show="isSortMode"/>
+
           <span class="title" @click="play(i.name, index)">{{i.name}}
           </span>
 
@@ -34,7 +36,7 @@
             <mu-menu-item title="添加到列表" @click.native="showPlayList(i)" />
             <mu-menu-item title="进入歌手页" @click.native="goSinger(i)" />
             <mu-menu-item title="进入专辑页" @click.native="goAlbum(i)" />
-            <mu-menu-item title="删除" @click.native="removeSong(index)" />
+            <mu-menu-item title="删除" @click.native="removeSong(i.name)" />
           </mu-icon-menu>
         </mu-list-item>
 
@@ -97,6 +99,7 @@
         dragging: false,
         enabled: true,
         lastTags: {},
+        checkList: [],
 
 
       }
@@ -159,7 +162,39 @@
           }
           return list[this.$store.state.curListIndex].list;
         }
-      }
+      },
+
+      multiDelete() {
+        let nameList = [];
+
+        for (let index = 0; index < this.checkList.length; index++) {
+          const element = this.checkList[index];
+          
+          nameList.push(this.mp3list[element]);
+        }
+        
+        for (let index = 0; index < nameList.length; index++) {
+          const element = nameList[index];
+
+
+          this.removeSong(element);
+          
+        }
+
+        this.checkList = [];
+      },
+
+      multiAdd() {
+        let nameList = [];
+
+        for (let index = 0; index < this.checkList.length; index++) {
+          const element = this.checkList[index];
+          
+          nameList.push(this.mp3list[element]);
+        }
+                
+        this.$refs.dlgPlayList.showDialog(nameList, true)
+      },
     },
     components: {
       DlgPlayList,
@@ -291,10 +326,10 @@
         this.$refs.dlgPlayList.showDialog(item.name);
       },
       showPlayList(item) {
-        this.$refs.dlgPlayList.showDialog(item.name);
+        this.$refs.dlgPlayList.showDialog(item, isMulti);
       },
-      removeSong(index) {
-        this.$store.commit('removeSong', index);
+      removeSong(name) {
+        this.$store.commit('removeSong', name);
       },
 
       favorite(item) {
@@ -382,7 +417,15 @@
     color: #fff;
   }
 
+  .demo-checkbox {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
   .title {
+    // display: inline-block;
+    vertical-align: middle;
+
     text-overflow: ellipsis;
     min-width: 70%;
     max-width: 90%;
@@ -394,10 +437,18 @@
 
   .mu-list .mu-item {
     position: relative;
+    display: flex;
+    align-items: center;
   }
 
   .mu-list .mu-menu {
     display: inline-block;
+
+  }
+
+  .mu-list .mu-icon-menu {
+    position: relative;
+    top: 1px;
   }
 
   .mu-item .star {

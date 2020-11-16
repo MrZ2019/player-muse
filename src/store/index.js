@@ -300,8 +300,18 @@ const mutations = {
     localStorage.setItem('settings', JSON.stringify(state.settings));
   },
 
- removeSong(state, index) {
-    state.playlist[state.curListIndex].list.splice(index, 1);
+ removeSong(state, item) {
+    
+    let list = state.playlist[state.curListIndex].list
+
+    for (let index = 0; index < list.length; index++) {
+      const element = list[index];
+      
+      if (element.name === item.name) {
+        list.splice(index, 1);
+      }   
+    }
+    
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
   },
@@ -352,12 +362,14 @@ const mutations = {
   addItemToList(state, {curGroupIndex, index, item}) {
 
     if ((curGroupIndex - 0) === 0) {
+      // alert(index)
       state.playlist[index].list.push({
         name: item,
       });
 
       localStorage.setItem('playlist', JSON.stringify(state.playlist));
     } else {
+
       state.groupList[curGroupIndex].playlist[index].list.push({
         name: item,
       });

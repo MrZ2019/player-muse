@@ -480,7 +480,7 @@ const COMMANDS = {
     let host = 'http://192.168.31.174:8080';
 
     if (window.config.isOut) {
-      host = "http://192.168.1.122:8084"
+      host = "http://192.168.1.116:8080"
     }
     setTimeout(function() {
       //

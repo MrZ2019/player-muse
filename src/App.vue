@@ -18,8 +18,10 @@
         <mu-menu-item title="移动当前列表"  @click.native="movePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="删除当前列表"  @click.native="removePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="重命名当前列表"  @click.native="renamePlayList" v-show="curListIndex !== -1"/>
-        <mu-menu-item title="排序模式"   @click.native="goSort" v-show="!isSortMode && curListIndex !== -1" />
-        <mu-menu-item title="退出排序模式"   @click.native="leaveSort" v-show="isSortMode && curListIndex !== -1" />
+        <mu-menu-item title="排序模式"   @click.native="goSort" v-show="!isSortMode" />
+        <mu-menu-item title="批量删除"   @click.native="multiDelete" v-show="isSortMode" />
+        <mu-menu-item title="批量添加"   @click.native="multiAdd" v-show="isSortMode" />
+        <mu-menu-item title="退出排序模式"   @click.native="leaveSort" v-show="isSortMode" />
         <mu-menu-item title="设置"  @click.native="openSettings"/>
         <mu-menu-item title="刷新"  @click.native="reload"/>
         <mu-menu-item title="备份与恢复"  @click.native="showBackup"/>
@@ -92,6 +94,7 @@ export default {
       },
       isFollowImage: false,
       imageColor: '',
+
       // themeColor: '',
     }
   },
@@ -166,6 +169,10 @@ export default {
         .mu-switch-track {
           background: ${color} !important;
           opacity: .5;
+        }
+
+        .mu-checkbox-icon-checked {
+          color: ${color} !important;
         }
         `)
       },
@@ -259,18 +266,26 @@ export default {
     goSort() {
       this.$store.state.isSortMode = true;
     },
+    multiDelete() {
+      window.$Mp3List.multiDelete();
+    },
+    multiAdd() {
+      window.$Mp3List.multiAdd();
+    },
     leaveSort() {
       this.$store.state.isSortMode = false;
     },
 
     changeListToAll() {
       this.$store.commit('changeList', -1)
+      this.$Mp3List.checkList = []
     },
     changeListToAllRandom() {
       this.$store.commit('changeListRandom', -1)
     },
     changeList(index, item) {
       this.$store.commit('changeList', index, item)
+      window.$Mp3List.checkList = []
     },
     changeGroup(index, item) {
       this.$refs.dlgGroupList.showDialog()
@@ -410,6 +425,7 @@ export default {
   #myCanvas, #imgs {
     position: absolute;
     opacity: 0;
+    z-index: -1;
   }
 }
 

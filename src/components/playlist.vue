@@ -13,7 +13,7 @@
 
           <draggable :list="playlist" class="list-group" ghost-class="ghost"  v-if="gIndex === 0" s
             @start="dragging = true" @end="onDragEnd" :disabled="!isSort">
-            <mu-list-item  v-for="(item,index) in playlist" :value="index" @click="handleChange(index)">
+            <mu-list-item  v-for="(item,index) in playlist" :value="index" @click="handleChange(index)" v-if="item">
               <span class="title">{{item.name}}</span>
               <mu-icon value="remove_circle" color="gray" @click.stop="remove(index)" />
             </mu-list-item>
@@ -75,13 +75,29 @@
       }
     },
     methods: {
-      handleChange(index) {
+      handleChange(listIndex) {
         // alert()
-        this.$store.commit('addItemToList', {
-          index,
-          item: this.selectedItem,
-          curGroupIndex: this.activeGroup
-        })
+
+
+        if (this.isMulti) {
+
+          for (let index = 0; index < this.nameList.length; index++) {
+            const element = this.nameList[index];
+            
+            
+            this.$store.commit('addItemToList', {
+              index:listIndex,
+              item: element.name,
+              curGroupIndex: this.activeGroup
+            })                
+          }
+        } else {
+          this.$store.commit('addItemToList', {
+            index:listIndex,
+            item: this.selectedItem,
+            curGroupIndex: this.activeGroup
+          })        
+        }
         this.dialog = false;
       },
       onDragEnd() {
@@ -96,9 +112,15 @@
         this.$store.commit('addPlayList', [name, this.activeGroup]);
       },
 
-      showDialog(item) {
+      showDialog(item, isMulti) {
         this.dialog = true;
-        this.selectedItem = item;
+        this.isMulti = isMulti;
+
+        if (isMulti) {
+          this.nameList = item;
+        } else {
+          this.selectedItem = item;
+        }
       },
 
       close() {
