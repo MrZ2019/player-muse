@@ -164,37 +164,7 @@
         }
       },
 
-      multiDelete() {
-        let nameList = [];
 
-        for (let index = 0; index < this.checkList.length; index++) {
-          const element = this.checkList[index];
-
-          nameList.push(this.mp3list[element]);
-        }
-
-        for (let index = 0; index < nameList.length; index++) {
-          const element = nameList[index];
-
-
-          this.removeSong(element);
-
-        }
-
-        this.checkList = [];
-      },
-
-      multiAdd() {
-        let nameList = [];
-
-        for (let index = 0; index < this.checkList.length; index++) {
-          const element = this.checkList[index];
-
-          nameList.push(this.mp3list[element]);
-        }
-
-        this.$refs.dlgPlayList.showDialog(nameList, true)
-      },
     },
     components: {
       DlgPlayList,
@@ -212,11 +182,14 @@
       window.Hub.$on('play-music', function() {
         self.refreshList()
       })
+      window.Hub.$on('multiAdd', function() {
+        self.multiAdd();
+      })
       if (window.player) {
         player.stop()
       }
       let self = this
-      window.$Mp3List = self
+      window.$Mp3List = this
 
       // self.$router.push('/scan')
 
@@ -239,7 +212,40 @@
       },
     },
     methods: {
+ multiDelete() {
 
+        let nameList = [];
+
+        for (let index = 0; index < this.checkList.length; index++) {
+          const element = this.checkList[index];
+
+          nameList.push(this.mp3list[element]);
+        }
+
+        for (let index = 0; index < nameList.length; index++) {
+          const element = nameList[index];
+
+
+          this.removeSong(element.name);
+
+        }
+
+        this.checkList = [];
+      },
+
+      multiAdd() {
+
+        // alert(12345)
+        let nameList = [];
+
+        for (let index = 0; index < this.checkList.length; index++) {
+          const element = this.checkList[index];
+
+          nameList.push(this.mp3list[element]);
+        }
+
+        this.$refs.dlgPlayList.showDialog(nameList, true)
+      },
       backList() {
         this.$store.state.isSingerMode = false;
         this.$store.state.isAlbumMode = false;
@@ -326,7 +332,7 @@
         this.$refs.dlgPlayList.showDialog(item.name);
       },
       showPlayList(item) {
-        this.$refs.dlgPlayList.showDialog(item, isMulti);
+        this.$refs.dlgPlayList.showDialog(item.name);
       },
       removeSong(name) {
         this.$store.commit('removeSong', name);

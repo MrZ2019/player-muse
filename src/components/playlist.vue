@@ -13,7 +13,7 @@
 
           <draggable :list="playlist" class="list-group" ghost-class="ghost"  v-if="gIndex === 0" s
             @start="dragging = true" @end="onDragEnd" :disabled="!isSort">
-            <mu-list-item  v-for="(item,index) in playlist" :value="index" @click="handleChange(index)" v-if="item">
+            <mu-list-item  v-for="(item,index) in playlist" :value="index" @click.native="handleChange(index)" v-if="item">
               <span class="title">{{item.name}}</span>
               <mu-icon value="remove_circle" color="gray" @click.stop="remove(index)" />
             </mu-list-item>
@@ -83,20 +83,23 @@
 
           for (let index = 0; index < this.nameList.length; index++) {
             const element = this.nameList[index];
-            
-            
+
+
             this.$store.commit('addItemToList', {
               index:listIndex,
               item: element.name,
               curGroupIndex: this.activeGroup
-            })                
+            })
           }
         } else {
+
+
+
           this.$store.commit('addItemToList', {
-            index:listIndex,
+            index: listIndex,
             item: this.selectedItem,
             curGroupIndex: this.activeGroup
-          })        
+          })
         }
         this.dialog = false;
       },
@@ -113,8 +116,12 @@
       },
 
       showDialog(item, isMulti) {
+
+        // alert(1234)
         this.dialog = true;
+        // alert(1)
         this.isMulti = isMulti;
+
 
         if (isMulti) {
           this.nameList = item;

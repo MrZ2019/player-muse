@@ -302,19 +302,21 @@ const mutations = {
   },
 
  removeSong(state, item) {
-    
-    let list = state.playlist[state.curListIndex].list
+
+    let list = (state.curGroupIndex - 0 === 0) ? state.playlist[state.curListIndex].list : state.groupList[state.curGroupIndex].playlist[state.curListIndex].list;
 
     for (let index = 0; index < list.length; index++) {
       const element = list[index];
-      
-      if (element.name === item.name) {
+
+      if (element.name === item) {
         list.splice(index, 1);
-      }   
+        break;
+      }
     }
-    
+
 
     localStorage.setItem('playlist', JSON.stringify(state.playlist));
+     localStorage.setItem('groupList', JSON.stringify(state.groupList));
   },
  removeGroup(state, index) {
     state.groupList.splice(index, 1);
@@ -362,20 +364,52 @@ const mutations = {
 
   addItemToList(state, {curGroupIndex, index, item}) {
 
+    let checkExist = (list, item)=> {
+      let exist = false;
+      for (let i = 0; i < list.length; i++) {
+        let e = list[i];
+
+        if (e.name === item) {
+          exist = true;
+          break;
+        }
+      }
+
+      return exist;
+    }
+
+    let _list;
+
     if ((curGroupIndex - 0) === 0) {
       // alert(index)
-      state.playlist[index].list.push({
+      _list = state.playlist[index].list;
+
+
+       // alert(3)
+      if (checkExist(_list, item)) {
+        alert('歌曲已存在')
+        return;
+      }
+      _list.push({
         name: item,
       });
 
       localStorage.setItem('playlist', JSON.stringify(state.playlist));
     } else {
+      _list = state.groupList[curGroupIndex].playlist[index].list;
 
-      state.groupList[curGroupIndex].playlist[index].list.push({
+
+      if (checkExist(_list, item)) {
+        alert('歌曲已存在')
+        return;
+      }
+      _list.push({
         name: item,
       });
 
       localStorage.setItem('groupList', JSON.stringify(state.groupList));
+
+      // alert(233)
     }
   },
   changeList(state, index, item) {

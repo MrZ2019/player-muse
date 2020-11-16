@@ -275,7 +275,8 @@ export default {
       window.$Mp3List.multiDelete();
     },
     multiAdd() {
-      window.$Mp3List.multiAdd();
+      window.Hub.$emit("multiAdd")
+      
     },
     leaveSort() {
       this.$store.state.isSortMode = false;
