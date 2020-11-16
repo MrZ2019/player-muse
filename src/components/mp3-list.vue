@@ -21,7 +21,7 @@
         @start="dragging = true" @end="onDragEnd">
         <mu-list-item v-for="(i,index) in mp3list" :class="{active: curIndex == index}">
 
-          <mu-checkbox name="group" :nativeValue="index" v-model="checkList" label="" class="demo-checkbox" v-show="isSortMode"/>
+          <mu-checkbox name="group" :nativeValue="index" v-model="checkList" label="" class="demo-checkbox" v-show="isMultiMode"/>
 
           <span class="title" @click="play(i.name, index)">{{i.name}}
           </span>
@@ -46,7 +46,7 @@
       </draggable>
 
     </mu-list>
-    
+
     <DlgPlayList ref="dlgPlayList"></DlgPlayList>
 
     <player ref="myplayer"></player>
@@ -123,7 +123,7 @@
       }
     },
     computed: {
-      ...mapState(['isAll', 'isSortMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
+      ...mapState(['isAll', 'isSortMode', 'isMultiMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
         'isFromList', 'playlist', 'groupList', 'curGroupIndex', 'settings'
       ]),
       // curPlayList() {
@@ -169,16 +169,16 @@
 
         for (let index = 0; index < this.checkList.length; index++) {
           const element = this.checkList[index];
-          
+
           nameList.push(this.mp3list[element]);
         }
-        
+
         for (let index = 0; index < nameList.length; index++) {
           const element = nameList[index];
 
 
           this.removeSong(element);
-          
+
         }
 
         this.checkList = [];
@@ -189,10 +189,10 @@
 
         for (let index = 0; index < this.checkList.length; index++) {
           const element = this.checkList[index];
-          
+
           nameList.push(this.mp3list[element]);
         }
-                
+
         this.$refs.dlgPlayList.showDialog(nameList, true)
       },
     },

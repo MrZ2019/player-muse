@@ -19,9 +19,11 @@
         <mu-menu-item title="删除当前列表"  @click.native="removePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="重命名当前列表"  @click.native="renamePlayList" v-show="curListIndex !== -1"/>
         <mu-menu-item title="排序模式"   @click.native="goSort" v-show="!isSortMode" />
-        <mu-menu-item title="批量删除"   @click.native="multiDelete" v-show="isSortMode" />
-        <mu-menu-item title="批量添加"   @click.native="multiAdd" v-show="isSortMode" />
+        <mu-menu-item title="批量模式"   @click.native="goMulti" v-show="!isMultiMode" />
+        <mu-menu-item title="批量删除"   @click.native="multiDelete" v-show="isMultiMode" />
+        <mu-menu-item title="批量添加"   @click.native="multiAdd" v-show="isMultiMode" />
         <mu-menu-item title="退出排序模式"   @click.native="leaveSort" v-show="isSortMode" />
+        <mu-menu-item title="退出批量模式"   @click.native="leaveMulti" v-show="isMultiMode" />
         <mu-menu-item title="设置"  @click.native="openSettings"/>
         <mu-menu-item title="刷新"  @click.native="reload"/>
         <mu-menu-item title="备份与恢复"  @click.native="showBackup"/>
@@ -99,7 +101,7 @@ export default {
     }
   },
   computed: {
-      ...mapState(['playlist', 'curListIndex', 'isSortMode', 'settings', 'groupList', 'curGroupIndex', 'imageData', 'bgOpacity']
+      ...mapState(['playlist', 'curListIndex', 'isSortMode', 'isMultiMode', 'settings', 'groupList', 'curGroupIndex', 'imageData', 'bgOpacity']
       ),
       curPlayList() {
         if(this.curGroupIndex === 0) {
@@ -266,6 +268,9 @@ export default {
     goSort() {
       this.$store.state.isSortMode = true;
     },
+    goMulti() {
+      this.$store.state.isMultiMode = true;
+    },
     multiDelete() {
       window.$Mp3List.multiDelete();
     },
@@ -274,6 +279,10 @@ export default {
     },
     leaveSort() {
       this.$store.state.isSortMode = false;
+    },
+
+    leaveMulti() {
+      this.$store.state.isMultiMode = false;
     },
 
     changeListToAll() {

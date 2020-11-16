@@ -16,6 +16,7 @@ const state = {
   msg: 'Hello',
   isAll: true,
   isSortMode: false,
+  isMultiMode: false,
   isAlbumMode: false,
   isSingerMode: false,
   curSinger: '',
