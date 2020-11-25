@@ -83,8 +83,8 @@
         let name = prompt('名称', '');
 
         if (name)
-        callplus('backup', [data, name], function(res) {
-
+        callplus('backup', [data, name], (res) => {
+          this.getRestoreList();
         })
       },
       backupDB() {
@@ -97,9 +97,9 @@
           }
 
 
-          callplus('backup', [data2, 'db'], function(res) {
-
-          })
+          callplus('backup', [data2, 'db'], (res) => {
+            this.getRestoreList();
+          }, true)
         })
 
       },

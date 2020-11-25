@@ -19,7 +19,7 @@
     <mu-list ref="mp3List" @scroll.native="onScroll">
       <draggable :list="playlist" :disabled="!isSortMode" class="list-group" ghost-class="ghost"
         @start="dragging = true" @end="onDragEnd">
-        <mu-list-item v-for="(i,index) in mp3list" :class="{active: curIndex == index}">
+        <mu-list-item v-for="(i,index) in realList" :class="{active: curIndex == index}">
 
           <mu-checkbox name="group" :nativeValue="index" v-model="checkList" label="" class="demo-checkbox" v-show="isMultiMode"/>
 
@@ -100,25 +100,34 @@
         enabled: true,
         lastTags: {},
         checkList: [],
+        // playlistFilter: [],
 
 
       }
     },
     watch: {
       search(val) {
+        // alert(val)
         // let _this = this;
-        try {
+        // try {
+          let allList;
 
+          if (this.$store.state.curListIndex === -1) {
+            allList = this.allList;
+          } else {
+            allList = this.mp3list;
+          }
+            let list = allList.filter((item) => {
+              return item.name.indexOf(val) !== -1;
+            })
 
-          let list = this.allList.filter((item) => {
-            return item.name.indexOf(val) !== -1;
-          })
+            this.playlistFilter = list;
+            this.$forceUpdate(); 
 
-          this.playlistFilter = list;
-
-        } catch (e) {
-          alert(e)
-        }
+            // alert(val)
+        // } catch (e) {
+        //   alert(e)
+        // }
 
       }
     },
@@ -131,6 +140,13 @@
       // },
       iconColor() {
         return this.$parent.themeColor;
+      },
+      realList() {
+        if (this.search) {
+          return this.playlistFilter
+        } else {
+          return this.mp3list;
+        }
       },
       mp3list() {
         this.curIndex = -1;
@@ -146,10 +162,10 @@
 
           if (this.isAll) {
 
-            if (this.search) {
+            // if (this.search) {
 
-              return this.playlistFilter;
-            }
+            //   return this.playlistFilter;
+            // }
             return this.allList.slice(0, 50);
           }
           return this.list
@@ -184,6 +200,9 @@
       })
       window.Hub.$on('multiAdd', function() {
         self.multiAdd();
+      })
+      window.Hub.$on('clearSearch', function() {
+        self.search = ''
       })
       if (window.player) {
         player.stop()
