@@ -14,7 +14,7 @@
           <draggable :list="playlist" class="list-group" ghost-class="ghost"  v-if="gIndex === 0" s
             @start="dragging = true" @end="onDragEnd" :disabled="!isSort">
             <mu-list-item  v-for="(item,index) in playlist" :value="index" @click.native="handleChange(index)" v-if="item">
-              <span class="title">{{item.name}}</span>
+              <span class="title">{{item.name}}<span class="counter" v-if="settings.displayCounter">({{item.list.length}})</span></span>
               <mu-icon value="remove_circle" color="gray" @click.stop="remove(index)" />
             </mu-list-item>
 

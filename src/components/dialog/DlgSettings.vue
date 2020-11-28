@@ -2,6 +2,7 @@
   <mu-dialog :open="dialog" title="设置" @close="close">
     <mu-flex class="select-control-row">
       <mu-switch v-model="settings.debugMode" :label="'调试模式'"></mu-switch>
+      <mu-switch v-model="settings.displayCounter" :label="'显示歌曲数量'"></mu-switch>
     </mu-flex>
     <mu-flex class="select-control-row">
       <mu-raised-button label="本地扫描" class="demo-raised-button" primary @click="goScan"/>

@@ -141,6 +141,11 @@ const COMMANDS = {
           entry.createWriter( function ( writer ) {
           	// Write data to file.
           	writer.write( data );
+
+
+            object.postMessage({
+              name: 'backup'
+            }, '*')
           }, function ( e ) {
           	alert( e.message );
           } );
@@ -480,7 +485,7 @@ const COMMANDS = {
     let host = 'http://192.168.31.174:8080';
 
     if (window.config.isOut) {
-      host = "http://192.168.1.116:8080"
+      host = "http://192.168.1.116:8087"
     }
     let isDev;
     let checkConnect = function() {
@@ -526,8 +531,13 @@ const COMMANDS = {
 
 
     window.successCallback = {}
-    window.callplus = function(command, params, success) {
+    window.successCallbackMap = {}
+    window.callplus = function(command, params, success, runCallback) {
       let paramsStr = JSON.stringify(params);
+
+      // if (runCallback) {
+      //   successCallbackMap[command] = true;
+      // }
 
       // if (params.length) {
       // 	paramsStr = params.join(',');
@@ -558,6 +568,11 @@ const COMMANDS = {
       try {
         var set = e.data;
 
+        // if (window.successCallbackMap[set.name]) {
+        //   return window.successCallback[set.name](set);
+        // }        
+
+
         if (!set) {
           return;
         }
@@ -578,6 +593,9 @@ const COMMANDS = {
           $Mp3List.list = list.slice(0, 50)
         }
 
+          if(set.name == 'backup') {
+            // alert(window.successCallback[set.name])
+          }
         if (window.successCallback[set.name]) {
           window.successCallback[set.name](set);
         }

@@ -3,7 +3,7 @@
     <div class="image-box" :style="{'backgroundImage': 'url(' + imageData + ')', opacity: bgOpacity}">
 
     </div>
-    <mu-appbar :title="listName" :style="styleObj">
+    <mu-appbar :title="appTitle" :style="styleObj">
       <mu-icon-button icon="menu" slot="left" @click.native="open = true" />
       <mu-icon-button icon="title" slot="right" @click.native="goLyric" v-show="!isAlbumView" />
       <mu-icon-button icon="refresh" slot="right"  @click='refresh' v-show="!isStar && !isAlbumView && !isRankView"/>
@@ -46,7 +46,7 @@
          <mu-list-item >当前分组: <b>{{groupList[curGroupIndex].name}}</b></mu-list-item >
         <mu-list-item  @click.native="changeListToAll()" >全部歌曲</mu-list-item >
         <!-- <mu-list-item  @click.native="changeListToAllRandom()" >全部歌曲(随机)</mu-list-item > -->
-        <mu-list-item :title="item.name" v-for="(item, index) in curPlayList" @click="changeList(index, item)" v-if="item"/>
+        <mu-list-item v-for="(item, index) in curPlayList" @click="changeList(index, item)" v-if="item">{{item.name}}<span class="counter" v-if="settings.displayCounter">({{item.list.length}})</span></mu-list-item>
         <mu-list-item v-if="docked" @click.native="open = false" title="Close"/>
       </mu-list>
     </mu-drawer>
@@ -96,6 +96,7 @@ export default {
       },
       isFollowImage: false,
       imageColor: '',
+      curList: {list: []},
 
       // themeColor: '',
     }
@@ -103,6 +104,13 @@ export default {
   computed: {
       ...mapState(['playlist', 'curListIndex', 'isSortMode', 'isMultiMode', 'settings', 'groupList', 'curGroupIndex', 'imageData', 'bgOpacity']
       ),
+      appTitle() {
+        if (this.$store.state.curListIndex === -1) {
+          return this.listName;
+        } else {
+          return this.listName + '(' + this.curList.list.length + ')';
+        }
+      },
       curPlayList() {
         if(this.curGroupIndex === 0) {
           return this.playlist
@@ -289,13 +297,16 @@ export default {
     changeListToAll() {
       this.$store.commit('changeList', -1)
       this.$Mp3List.checkList = []
+      window.Hub.$emit('clearSearch')
     },
     changeListToAllRandom() {
       this.$store.commit('changeListRandom', -1)
     },
     changeList(index, item) {
+      this.curList = item;
       this.$store.commit('changeList', index, item)
       window.$Mp3List.checkList = []
+      window.Hub.$emit('clearSearch')
     },
     changeGroup(index, item) {
       this.$refs.dlgGroupList.showDialog()
