@@ -4,12 +4,14 @@
       <mu-raised-button label="开始扫描" class="demo-raised-button" secondary @click="startScan" />
       
       <mu-raised-button label="清空" class="demo-raised-button" secondary @click="clear" />
+
+      <mu-raised-button label="执行" class="demo-raised-button" secondary @click="execute" />
     </div>
     <div class="row progress">
       {{cur}} / {{total}}
     </div>
     <div class="row progress">
-      本次重复数: {{repeatCount}} albums: {{allAlbums.length}}  songs: {{allSongs.length}} singers: {{allSingers.length}}
+      本次重复数: {{repeatCount}} albums: {{allAlbums.length}}  songs: {{allSongs.length}} singers: {{allSingers.length}}  lyrics: {{allLyrics.length}}
     </div>
 
 <!--    <div class="row cover-list">
@@ -39,7 +41,7 @@
       }
     },
     computed: {
-      ...mapState(['lyric', 'musicDirectory', 'allSongs', 'allAlbums', 'allSingers'])
+      ...mapState(['lyric', 'musicDirectory', 'allSongs', 'allAlbums', 'allSingers', 'allLyrics'])
     },
     mounted() {
       this.db = window.DB;
@@ -77,6 +79,15 @@
         this.db.exec('DROP TABLE singers')
         
         window.location.reload();
+      },
+
+      execute() {
+          this.db.exec(
+            `CREATE TABLE IF NOT EXISTS lyric(
+                id INTEGER PRIMARY KEY ,
+                name TEXT NOT NULL UNIQUE,
+                content TEXT)`
+          )
       },
 
       startScan() {

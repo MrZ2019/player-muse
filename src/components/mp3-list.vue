@@ -21,9 +21,10 @@
         @start="dragging = true" @end="onDragEnd">
         <mu-list-item v-for="(i,index) in realList" :class="{active: curIndex == index}">
 
-          <mu-checkbox name="group" :nativeValue="index" v-model="checkList" label="" class="demo-checkbox" v-show="isMultiMode"/>
+          <mu-checkbox name="group" :nativeValue="index + ''" v-model="checkList" label="" class="demo-checkbox" v-show="isMultiMode"/>
 
-          <span class="title" @click="play(i.name, index)">{{i.name}}
+          <span class="title" @click="play(i.name, index)">{{i.name.replace(/\.\w+$/, '')}} 
+            <span class="lyric" v-show="lyricMap[i.name]">【词】</span>
           </span>
 
 
@@ -106,6 +107,11 @@
       }
     },
     watch: {
+      mp3list(list) {
+        list.forEach((item) => {
+            window.$Player && window.$Player.getLyric(item.name)
+        })
+      },
       search(val) {
         // alert(val)
         // let _this = this;
@@ -133,7 +139,7 @@
     },
     computed: {
       ...mapState(['isAll', 'isSortMode', 'isMultiMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
-        'isFromList', 'playlist', 'groupList', 'curGroupIndex', 'settings'
+        'isFromList', 'playlist', 'groupList', 'curGroupIndex', 'settings', 'lyricMap'
       ]),
       // curPlayList() {
 
@@ -212,15 +218,18 @@
 
       // self.$router.push('/scan')
 
-      setTimeout(function() {
+      setTimeout(() => {
 
         self.refreshList()
 
         callplus('getFavorite', [], function(set) {
           self.favoriteList = set.data;
         })
-      }, 1000)
 
+         let name = this.settings.lastPlay;
+        let args = [name, null]
+        this.$refs.myplayer.play.apply(this.$refs.myplayer, args)       
+      }, 1000)
 
 
 
@@ -377,9 +386,11 @@
           // alert(data.length)
 
           self.list = data
-
           for (var i = 0; i < self.list.length; i++) {
             var item = self.list[i];
+
+
+
 
             if (this.favoriteList.indexOf(item) !== -1) {
               item.favorited = true;
@@ -474,6 +485,10 @@
   .mu-list .mu-icon-menu {
     position: relative;
     top: 1px;
+  }
+
+  .mu-list .lyric {
+    color: #f00;
   }
 
   .mu-item .star {

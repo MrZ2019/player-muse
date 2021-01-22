@@ -41,6 +41,8 @@
 
     </div>
 
+    <mu-toast v-if="toast" :message="message" @close="hideToast"/>
+
     <mu-drawer :open="open" :docked="docked" @close="toggle()">
       <mu-list @itemClick="docked ? '' : toggle()">
          <mu-list-item >当前分组: <b>{{groupList[curGroupIndex].name}}</b></mu-list-item >
@@ -97,6 +99,8 @@ export default {
       isFollowImage: false,
       imageColor: '',
       curList: {list: []},
+      message: '',
+      toast: false,
 
       // themeColor: '',
     }
@@ -245,6 +249,7 @@ export default {
     this.$store.commit('getAllAlbums')
     this.$store.commit('getAllSongs')
     this.$store.commit('getAllSingers')
+    this.$store.commit('getAllLyrics')
 
     this.$store.commit('getGroup')
 
@@ -265,7 +270,7 @@ export default {
 
     this.isFollowImage = this.settings.isFollowImage;
 
-
+    this.message2('Hello')
 
 
 
@@ -279,6 +284,12 @@ export default {
     goMulti() {
       this.$store.state.isMultiMode = true;
     },
+    message2(msg, timeout=2000) {
+      this.toast = true
+      this.message = msg;
+      if (this.toastTimer) clearTimeout(this.toastTimer)
+      this.toastTimer = setTimeout(() => { this.toast = false }, timeout)
+        },
     multiDelete() {
       window.$Mp3List.multiDelete();
     },

@@ -12,6 +12,7 @@
         <div class="total">{{total}}</div>
       </div>
     </div>
+    <div class="lrc">{{curLrcLine}}</div>
 
 
 
@@ -49,6 +50,7 @@
         isPlay: false,
         enabled: true,
         lastTags: {},
+        curLrcLine: '',
       }
     },
     watch: {
@@ -58,7 +60,7 @@
       }
     },
     computed: {
-      ...mapState(['settings','musicDirectory'
+      ...mapState(['settings','musicDirectory', 'lyricMap',
       ]),
       // curPlayList() {
 
@@ -76,6 +78,9 @@
 
       let self = this
 
+      window.$Player = self;
+
+      self.db = window.DB;
 
     },
     filters: {
@@ -99,15 +104,25 @@
         this.openFullscreen = true;
       },
       onSliderChange(isStart) {
+        let self = this;
         this.linear = parseInt(this.linear - 0);
         // alert(this.linear)
         // clearTimeout(this.startSlideHandle);
 
         this.startSlideHandle = setTimeout(() => {
           if (isStart !== true)
-          callplus('seek', [this.linear], function(data) {})
+          callplus('seek', [this.linear], function(data) {
+            // alert(this.linear)
+            window.myLrc.play();
+            window.myLrc.seek(data.data.pos * 1000);
 
+            if (self.isPause) {
+              window.myLrc.pauseToggle()
+            }
+            
+          })
 
+          if (!self.isPause)
           this.startSlide();
         }, 1000)
 
@@ -161,6 +176,103 @@
 
         this.curSongTimer = 0;
       },
+
+      getLyricFromLocal(name, cb) {
+        let self = this;
+          let p = [name]
+
+          getLyric(p);
+
+          function getLyric(params) {
+
+            // alert(params)
+
+            self.db.exec(`SELECT * FROM lyric WHERE name=?`,
+            params, (row)=> {
+              console.log(row)
+              
+              setTimeout(() => {
+                let data = row[0].content
+                self.$store.commit('setLyric', data)
+
+                if (window.myLrc) {
+                   window.myLrc.stop();
+                }
+                window.myLrc = new Lrc(data, outputHandler);
+
+//定义歌词输出处理程序
+                  function outputHandler(line, extra){
+                    self.curLrcLine = line;
+                  }
+
+                  cb && cb()
+                
+              }, 500)
+            });
+          }   
+      },
+
+      getLyric(name) {
+        let self = this;
+        try {
+          let song = name.split('-');
+          let singer = song[0];
+
+          if (song[1]) {
+            song = song[1].trim();
+            let index = song.indexOf('.');
+            song = song.slice(0, index)
+          }
+
+
+          this.$axios.get(this.$apis.lyric + song + '/' + singer).then((res) => {
+            res = res.data;
+            if (res.result[0]) {
+              let s = res.result[0].lrc;
+
+              let index = s.indexOf('/lrc/')
+
+              let lrc = s.slice(index + 4);
+
+
+              this.$axios.get(this.$apis.lrc + lrc).then((res) => {
+
+                // this.$store.commit('setLyric', res.data)
+
+                  let p = [name, res.data]
+
+                  insertLyric(p);
+
+                  function insertLyric(params) {
+
+                    self.db.exec(`INSERT INTO lyric (name, content) VALUES( ?,?)`,
+                    params, (data)=> {
+                      window.$V.message2('歌词下载成功')
+                      
+                      setTimeout(() => {
+                        self.$store.commit('getAllLyrics')
+
+                        setTimeout(() => {
+                          window.$Mp3List.$forceUpdate();
+                        }, 500)
+                        
+                      }, 500)
+                    });
+                  }      
+
+
+              }).catch((e) => {
+                // alert(e)
+              })
+
+            }
+          }).catch((e) => {
+            // alert(e)
+          })
+        } catch (e) {
+          alert(e)
+        }
+      },
       play(name, index, isFromStart, isReplay) {
         let self = this;
 
@@ -173,6 +285,8 @@
 
             if (!this.isRankTimerStop)
             this.resumeRankTimer();
+
+            window.myLrc.pauseToggle();
           } else {
             callplus('pause', [], function(isPaused) {})
 
@@ -181,6 +295,8 @@
 
             if (!this.isRankTimerStop)
             this.pauseRankTimer();
+
+            window.myLrc.pauseToggle();
 
           }
 
@@ -199,11 +315,22 @@
         this.playIcon = this.isPause ? 'play_arrow' : 'pause_arrow';
         this.curIndex = index;
         this.name = name;
+        this.settings.lastPlay = name;
+        this.$store.commit('saveSettings', this.settings);
         var p = self.musicDirectory + name
         callplus('play', [self.musicDirectory + name, isFromStart], function(data) {
           let s = data.data.length;
           self.max = Math.ceil(s);
           self.linear = data.data.pos - 0;
+
+
+          if (self.lyricMap[name]) {
+            self.getLyricFromLocal(name, () => {
+
+              window.myLrc.play();
+              window.myLrc.seek(data.data.pos * 1000);
+            })
+          }          
 
           self.total = window.formatTime(s);
 
@@ -212,40 +339,8 @@
           // alert()
         })
 
-        try {
-          let song = name.split('-');
+        // this.getLyric(name)
 
-          if (song[1]) {
-            song = song[1].trim();
-            let index = song.indexOf('.');
-            song = song.slice(0, index)
-          }
-
-
-          this.$axios.get(this.$apis.lyric + song).then((res) => {
-            res = res.data;
-            if (res.result[0]) {
-              let s = res.result[0].lrc;
-
-              let index = s.indexOf('/lrc/')
-
-              let lrc = s.slice(index + 4);
-
-
-              this.$axios.get(this.$apis.lrc + lrc).then((res) => {
-
-                this.$store.commit('setLyric', res.data)
-              }).catch((e) => {
-                // alert(e)
-              })
-
-            }
-          }).catch((e) => {
-            // alert(e)
-          })
-        } catch (e) {
-          alert(e)
-        }
 
         callplus('getCover', [p], function(res) {
           displayCover(res.data)
@@ -337,5 +432,9 @@
 
   .rotate.paused {
     animation-play-state:paused;
+  }
+
+  .lrc {
+    text-align: center
   }
 </style>

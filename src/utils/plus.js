@@ -417,7 +417,20 @@ const COMMANDS = {
 
             self.player.seekTo(pos);
 
+              try {
 
+                // alert(list.length);
+                object.postMessage({
+                  data: {
+                    pos: pos,
+                  },
+                  type: 'seek',
+                  name: 'seek'
+                }, '*')
+
+              } catch (e) {
+                alert(e)
+              }
 
 
           } catch (e) {
@@ -485,7 +498,7 @@ const COMMANDS = {
     let host = 'http://192.168.31.174:8080';
 
     if (window.config.isOut) {
-      host = "http://192.168.1.116:8087"
+      host = "http://192.168.1.119:8087"
     }
     setTimeout(function() {
       //

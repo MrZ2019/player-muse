@@ -11,6 +11,7 @@ const state = {
       list: []
     }
   ],
+  lyricMap: {},
   allList: [],
   curListIndex: -1,
   msg: 'Hello',
@@ -30,6 +31,7 @@ const state = {
   allSongs: [],
   allAlbums: [],
   allSingers: [],
+  allLyrics: [],
 
   allAlbums2: [],
 
@@ -186,6 +188,17 @@ const mutations = {
 
     window.DB.exec('SELECT * FROM singers', null, (data)=> {
       state.allSingers = data;
+    })
+
+  },
+  getAllLyrics(state) {
+
+    window.DB.exec('SELECT * FROM lyric', null, (data)=> {
+
+      data.forEach((item)=> {
+        state.lyricMap[item.name] = true;
+      })
+      state.allLyrics = data;
     })
 
   },
