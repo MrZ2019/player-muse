@@ -38,7 +38,7 @@ window.getImageColor = getImageColor;
 
 function getImageColor(canvas, img) {
 
-    
+
     try {
       canvas.width = img.width;
       canvas.height = img.height;
@@ -500,20 +500,46 @@ const COMMANDS = {
     if (window.config.isOut) {
       host = "http://192.168.1.119:8087"
     }
+    let isDev;
+    let checkConnect = function() {
+      
+      if (eval(isDev) == true) {
+        $.ajax({
+          url: host,
+          async: false,
+          //
+          success: function(res) {
+            if (self == top && !location.host) {
+              // location = './iframe.html'
+            } else {
+              isConnected = true;
+            }
+          }
+        })        
+      } else {
+        // isConnected = false;
+      }
+            
+    }
     setTimeout(function() {
       //
-      $.ajax({
-        url: host,
-        async: false,
-        //
-        success: function(res) {
-          if (self == top && !location.host) {
-            // location = './iframe.html'
-          } else {
-            isConnected = true;
-          }
+       // alert(123)
+      
+      try {
+        if (window == top) {
+          isDev = window.localStorage['isDev']
+        } else {
+          // isDev = window.top.localStorage['isDev'];
+          isDev = true;
         }
-      })
+        
+        checkConnect();
+
+
+      } catch(e) {
+        alert(e);
+      }
+
     }, 500)
 
 
