@@ -29,6 +29,7 @@
         <mu-menu-item title="备份与恢复"  @click.native="showBackup"/>
         <mu-menu-item title="专辑视图"  @click.native="openAlbum"/>
         <mu-menu-item title="听歌排行"  @click.native="openRank"/>
+        <mu-menu-item title="听歌日历"  @click.native="openDate"/>
         <mu-menu-item title="退出" @click.native="quit" />
       </mu-icon-menu>
     </mu-appbar>
@@ -255,6 +256,7 @@ export default {
 
      this.$store.commit('getImage')
      this.$store.commit('getRank')
+     this.$store.commit('getDateMap')
 
     let bg = localStorage.getItem('background');
     let imageColor = localStorage.getItem('imageColor');
@@ -348,6 +350,9 @@ export default {
     },
     openRank() {
       this.$router.push('/rank')
+    },
+    openDate() {
+      this.$store.commit('setDate')
     },
 
     renamePlayList() {

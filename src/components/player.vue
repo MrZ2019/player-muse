@@ -113,11 +113,11 @@
           if (isStart !== true)
           callplus('seek', [this.linear], function(data) {
             // alert(this.linear)
-            window.myLrc.play();
-            window.myLrc.seek(data.data.pos * 1000);
+            window.myLrc && window.myLrc.play();
+            window.myLrc && window.myLrc.seek(data.data.pos * 1000);
 
             if (self.isPause) {
-              window.myLrc.pauseToggle()
+              window.myLrc && window.myLrc.pauseToggle()
             }
             
           })
@@ -172,6 +172,7 @@
 
         if (this.curSongTimer >= this.settings.rankTimeout) {
           this.$store.commit('addRank', {name: this.name})
+          this.$store.commit('addDate', {name: this.name})
         }
 
         this.curSongTimer = 0;
@@ -286,7 +287,7 @@
             if (!this.isRankTimerStop)
             this.resumeRankTimer();
 
-            window.myLrc.pauseToggle();
+            window.myLrc && window.myLrc.pauseToggle();
           } else {
             callplus('pause', [], function(isPaused) {})
 
@@ -296,7 +297,7 @@
             if (!this.isRankTimerStop)
             this.pauseRankTimer();
 
-            window.myLrc.pauseToggle();
+            window.myLrc && window.myLrc.pauseToggle();
 
           }
 
@@ -327,8 +328,8 @@
           if (self.lyricMap[name]) {
             self.getLyricFromLocal(name, () => {
 
-              window.myLrc.play();
-              window.myLrc.seek(data.data.pos * 1000);
+              window.myLrc && window.myLrc.play();
+              window.myLrc && window.myLrc.seek(data.data.pos * 1000);
             })
           }          
 

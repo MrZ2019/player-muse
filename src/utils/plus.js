@@ -34,6 +34,39 @@ window.formatTime = function(total) {
 
   return min + ":" + second;
 }
+
+window.formatDate = function(date = new Date(), formatStr = 'Y-m-d  H:i:s') {
+    let str = '';
+    if (typeof date === 'string') {
+        formatStr = date;
+        date = new Date();
+    }
+    for (let i of formatStr) {
+        switch (i) {
+        case 'Y':
+            str += date.getFullYear();
+            break;
+        case 'm':
+            str += String(date.getMonth() + 1).padStart(2, '0');
+            break;
+        case 'd':
+            str += String(date.getDate()).padStart(2, '0');
+            break;
+        case 'H':
+            str += String(date.getHours()).padStart(2, '0');
+            break;
+        case 'i':
+            str += String(date.getMinutes()).padStart(2, '0');
+            break;
+        case 's':
+            str += String(date.getSeconds()).padStart(2, '0');
+            break;
+        default:
+            str += i;
+        }
+    }
+    return str;
+}
 window.getImageColor = getImageColor;
 
 function getImageColor(canvas, img) {
@@ -498,7 +531,7 @@ const COMMANDS = {
     let host = 'http://192.168.31.174:8080';
 
     if (window.config.isOut) {
-      host = "http://192.168.1.119:8087"
+      host = "http://192.168.1.104:8087"
     }
     let isDev;
     let checkConnect = function() {

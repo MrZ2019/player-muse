@@ -1,9 +1,9 @@
 <template>
   <div class="container">
 
-    <mu-text-field placeholder="" full-width v-model="search" class="inp-search" v-show="!isSingerMode && !isAlbumMode" />
+    <mu-text-field placeholder="" full-width v-model="search" class="inp-search" v-show="!isSingerMode && !isAlbumMode && !isDateMode" />
 
-    <div class="singer" v-show="isSingerMode">
+    <div class="singer" v-show="curMode == 'singer'">
       <span class="text">当前歌手: </span>
       <span class="value">{{curSinger}}</span>
 
@@ -14,6 +14,11 @@
       <span class="value">{{curAlbum.title}}</span>
 
       <mu-flat-button @click="backList" primary label="返回" v-show="isFromList" />
+    </div>
+
+    <div v-show="curMode == 'date'" class="date">
+       <mu-date-picker hintText="竖屏模式选择" v-model="selectDate"/>
+       <mu-flat-button @click="backList" primary label="返回" />
     </div>
 
     <mu-list ref="mp3List" @scroll.native="onScroll">
@@ -101,12 +106,16 @@
         enabled: true,
         lastTags: {},
         checkList: [],
+        selectDate: '',
         // playlistFilter: [],
 
 
       }
     },
     watch: {
+      selectDate(val) {
+
+      },
       mp3list(list) {
         list.forEach((item) => {
             window.$Player && window.$Player.getLyric(item.name)
@@ -138,12 +147,23 @@
       }
     },
     computed: {
-      ...mapState(['isAll', 'isSortMode', 'isMultiMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
+      ...mapState(['isAll', 'isSortMode', 'isMultiMode', 'musicDirectory', 'isSingerMode', 'isDateMode', 'isAlbumMode', 'curSinger', 'curAlbum',
         'isFromList', 'playlist', 'groupList', 'curGroupIndex', 'settings', 'lyricMap'
       ]),
       // curPlayList() {
 
       // },
+      curMode() {
+        if (this.isSingerMode) {
+          return 'singer'
+        }
+        if (this.isAlbumMode) {
+          return 'album'
+        }
+        if (this.isDateMode) {
+          return 'date'
+        }
+      },
       iconColor() {
         return this.$parent.themeColor;
       },
@@ -163,6 +183,10 @@
 
         if (this.$store.state.isAlbumMode) {
           return this.$store.state.curAlbum.list;
+        }
+
+        if (this.$store.state.isDateMode) {
+          return this.$store.state.dateMap[this.selectDate];
         }
         if (this.$store.state.curListIndex === -1) {
 
@@ -277,8 +301,9 @@
       backList() {
         this.$store.state.isSingerMode = false;
         this.$store.state.isAlbumMode = false;
+        this.$store.state.isDateMode = false;
         let val = window.mp3ListScrollTopSinger
-        this.$nextTick(() => {
+        this.$nextTick(() => {                                            n               
           this.$refs.mp3List.$el.scrollTop = val
         })
       },
@@ -517,6 +542,7 @@
     }
 
     .inp-search,
+    .date,
     .singer {
       margin-top: 64px;
     }
