@@ -53,8 +53,8 @@
 
 
     .mu-list {
-      min-height: 70%;
-      max-height: 70%;
+      min-height: 65%;
+      max-height: 65%;
     }
    }
 

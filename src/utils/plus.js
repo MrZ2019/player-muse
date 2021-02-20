@@ -495,14 +495,14 @@ const COMMANDS = {
 
     window.isConnected = false
 
-    let host = 'http://192.168.31.174:8080';
+    let host = 'http://192.168.31.174:8087';
 
     if (window.config.isOut) {
       host = "http://192.168.1.119:8087"
     }
     let isDev;
     let checkConnect = function() {
-      
+
       if (eval(isDev) == true) {
         $.ajax({
           url: host,
@@ -515,16 +515,16 @@ const COMMANDS = {
               isConnected = true;
             }
           }
-        })        
+        })
       } else {
         // isConnected = false;
       }
-            
+
     }
     setTimeout(function() {
       //
        // alert(123)
-      
+
       try {
         if (window == top) {
           isDev = window.localStorage['isDev']
@@ -532,7 +532,7 @@ const COMMANDS = {
           // isDev = window.top.localStorage['isDev'];
           isDev = true;
         }
-        
+
         checkConnect();
 
 
@@ -583,7 +583,7 @@ const COMMANDS = {
 
         // if (window.successCallbackMap[set.name]) {
         //   return window.successCallback[set.name](set);
-        // }        
+        // }
 
 
         if (!set) {
@@ -616,3 +616,32 @@ const COMMANDS = {
         alert(e)
       }
     })
+
+
+window.scrollLyric = function(extra) {
+
+window.lastExtra = extra;
+let elActive = document.querySelector(`.lyric div.active`);
+    let el = document.querySelector(`div[line='${extra.originLineNum}']`);
+
+
+
+    if (el) {
+
+      if (extra.originLineNum > 8) {
+        let el2 = document.querySelector(`div[line='${extra.originLineNum - 8}']`);
+
+        el2.scrollIntoView();
+      }
+
+       el.classList.add('active');
+
+       // window.scrollBy(0, 200)
+       elActive && elActive.classList.remove('active')
+
+       // el.previousElementSibling && el.previousElementSibling.previousElementSibling.scrollIntoView();
+       // el.index
+    } else {
+
+    }
+}

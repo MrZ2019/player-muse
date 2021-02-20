@@ -56,6 +56,12 @@
     <mu-dialog :open="dialog" title="主题色" @close="closePicker">
          <mu-checkbox label="背景图片主色" v-model="isFollowImage"/>
         <picker  v-model="colors"></picker>
+
+       <mu-flex class="row" style="margin: 8px 0">
+         <mu-raised-button label="清空背景" class="demo-raised-button" primary @click="clearBg"/>
+       </mu-flex>
+
+
         <mu-flat-button slot="actions" @click="closePicker" primary label="取消"/>
         <mu-flat-button slot="actions" primary @click="confirmPicker" label="确定"/>
       </mu-dialog>
@@ -162,12 +168,18 @@ export default {
           background: ${color} !important;
         }
 
+
+
         .mu-slider-thumb {
           color: ${color} !important;
           background: ${color} !important;
         }
 
         .mu-flat-button-primary {
+           color: ${color} !important;
+        }
+
+        .lyric .active {
            color: ${color} !important;
         }
 
@@ -278,6 +290,10 @@ export default {
   },
   methods: {
     ...mapMutations(['removePlayList', 'renamePlayList']),
+    
+    clearBg() {
+      this.$store.commit('clearImage')
+    },
     goSort() {
       this.$store.state.isSortMode = true;
     },
@@ -295,7 +311,7 @@ export default {
     },
     multiAdd() {
       window.Hub.$emit("multiAdd")
-      
+
     },
     leaveSort() {
       this.$store.state.isSortMode = false;
@@ -438,6 +454,10 @@ export default {
   .mu-appbar {
     position: fixed;
     top: 0;
+  }
+
+  .select-control-row {
+    margin: 4px 0 0;
   }
 
   .main-slot {

@@ -43,6 +43,7 @@ const state = {
   imageData: '',
 
   bgOpacity: .5,
+  themeColor: '',
   rankList: [],
   lyric: `[ti:你听得到]
 [ar:周杰伦]
@@ -116,6 +117,15 @@ const mutations = {
     state.imageData = data
 
     localStorage.setItem('imageData', data);
+  },
+  clearImage(state, data) {
+    state.imageData = ''
+
+    localStorage.setItem('imageData', '');
+  },
+  saveLyricMap(state, data) {
+
+    localStorage.setItem('lyricMap', JSON.stringify(data));
   },
   getImage(state) {
     let data = localStorage.getItem('imageData');
@@ -198,6 +208,11 @@ const mutations = {
       data.forEach((item)=> {
         state.lyricMap[item.name] = true;
       })
+
+      let map = JSON.parse(localStorage.getItem('lyricMap')) || {};
+
+      Object.assign(state.lyricMap, map);
+
       state.allLyrics = data;
     })
 

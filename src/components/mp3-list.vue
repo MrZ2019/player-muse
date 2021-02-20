@@ -23,8 +23,8 @@
 
           <mu-checkbox name="group" :nativeValue="index + ''" v-model="checkList" label="" class="demo-checkbox" v-show="isMultiMode"/>
 
-          <span class="title" @click="play(i.name, index)">{{i.name.replace(/\.\w+$/, '')}} 
-            <span class="lyric" v-show="lyricMap[i.name]">【词】</span>
+          <span class="title" @click="play(i.name, index)">{{i.name.replace(/\.\w+$/, '')}}
+            <span class="lyric-label" v-show="lyricMap[i.name]" :style="{color: iconColor}">【词】</span>
           </span>
 
 
@@ -108,9 +108,9 @@
     },
     watch: {
       mp3list(list) {
-        list.forEach((item) => {
-            window.$Player && window.$Player.getLyric(item.name)
-        })
+        // list.forEach((item) => {
+        //     window.$Player && window.$Player.getLyric(item.name)
+        // })
       },
       search(val) {
         // alert(val)
@@ -128,7 +128,7 @@
             })
 
             this.playlistFilter = list;
-            this.$forceUpdate(); 
+            this.$forceUpdate();
 
             // alert(val)
         // } catch (e) {
@@ -139,11 +139,12 @@
     },
     computed: {
       ...mapState(['isAll', 'isSortMode', 'isMultiMode', 'musicDirectory', 'isSingerMode', 'isAlbumMode', 'curSinger', 'curAlbum',
-        'isFromList', 'playlist', 'groupList', 'curGroupIndex', 'settings', 'lyricMap'
+        'isFromList', 'playlist', 'groupList', 'curGroupIndex', 'settings', 'lyricMap','themeColor'
       ]),
       // curPlayList() {
 
       // },
+
       iconColor() {
         return this.$parent.themeColor;
       },
@@ -228,7 +229,7 @@
 
          let name = this.settings.lastPlay;
         let args = [name, null]
-        this.$refs.myplayer.play.apply(this.$refs.myplayer, args)       
+        this.$refs.myplayer.play.apply(this.$refs.myplayer, args)
       }, 1000)
 
 
@@ -488,9 +489,13 @@
   }
 
   .mu-list .lyric {
-    color: #f00;
+    /* color: #f00; */
   }
 
+  .lyric-label {
+/*    position: absolute;
+    right: 48px; */
+  }
   .mu-item .star {
     float: right;
     margin-top: -5px;

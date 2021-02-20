@@ -12,7 +12,7 @@
         <div class="total">{{total}}</div>
       </div>
     </div>
-    <div class="lrc">{{curLrcLine}}</div>
+    <div class="lrc" @click="goLyric">{{curLrcLine}}</div>
 
 
 
@@ -89,6 +89,9 @@
       },
     },
     methods: {
+    goLyric () {
+      this.$router.push('/lyric')
+    },
 
       togglePlay() {
         this.play(this.name, this.curIndex);
@@ -119,7 +122,7 @@
             if (self.isPause) {
               window.myLrc.pauseToggle()
             }
-            
+
           })
 
           if (!self.isPause)
@@ -190,7 +193,8 @@
             self.db.exec(`SELECT * FROM lyric WHERE name=?`,
             params, (row)=> {
               console.log(row)
-              
+              // alert(1)
+
               setTimeout(() => {
                 let data = row[0].content
                 self.$store.commit('setLyric', data)
@@ -203,75 +207,103 @@
 //定义歌词输出处理程序
                   function outputHandler(line, extra){
                     self.curLrcLine = line;
+                    console.log(extra.originLineNum)
+                    extra.originLineNum+=1
+
+                    window.scrollLyric(extra)
+
+
+
                   }
 
                   cb && cb()
-                
+
               }, 500)
             });
-          }   
+          }
       },
 
       getLyric(name) {
+        // alert(name)
         let self = this;
-        try {
-          let song = name.split('-');
-          let singer = song[0];
 
-          if (song[1]) {
-            song = song[1].trim();
-            let index = song.indexOf('.');
-            song = song.slice(0, index)
-          }
+        let _resolve, _reject;
 
 
-          this.$axios.get(this.$apis.lyric + song + '/' + singer).then((res) => {
-            res = res.data;
-            if (res.result[0]) {
-              let s = res.result[0].lrc;
+        let p = new Promise((resolve, reject)=> {
 
-              let index = s.indexOf('/lrc/')
+          try {
 
-              let lrc = s.slice(index + 4);
+            // alert(name)
+            let song = name.split('-');
+            let singer = song[0];
+
+            if (song[1]) {
+              song = song[1].trim();
+              let index = song.indexOf('.');
+              song = song.slice(0, index)
+            }
 
 
-              this.$axios.get(this.$apis.lrc + lrc).then((res) => {
+            this.$axios.get(this.$apis.lyric + song + '/' + singer).then((res) => {
 
-                // this.$store.commit('setLyric', res.data)
+              // alert(2)
+              res = res.data;
+              if (res.result[0]) {
+                let s = res.result[0].lrc;
 
-                  let p = [name, res.data]
+                let index = s.indexOf('/lrc/')
 
-                  insertLyric(p);
+                let lrc = s.slice(index + 4);
 
-                  function insertLyric(params) {
 
-                    self.db.exec(`INSERT INTO lyric (name, content) VALUES( ?,?)`,
-                    params, (data)=> {
-                      window.$V.message2('歌词下载成功')
-                      
-                      setTimeout(() => {
-                        self.$store.commit('getAllLyrics')
+                this.$axios.get(this.$apis.lrc + lrc).then((res) => {
+
+                  // this.$store.commit('setLyric', res.data)
+
+                    let p = [name, res.data]
+
+                    insertLyric(p);
+
+                    function insertLyric(params) {
+
+                      self.db.exec(`INSERT INTO lyric (name, content) VALUES( ?,?)`,
+                      params, (data)=> {
+                        window.$V.message2('歌词下载成功')
+
+                        resolve();
 
                         setTimeout(() => {
-                          window.$Mp3List.$forceUpdate();
+                          self.$store.commit('getAllLyrics')
+
+                          setTimeout(() => {
+                            window.$Mp3List.$forceUpdate();
+                          }, 500)
+
                         }, 500)
-                        
-                      }, 500)
-                    });
-                  }      
+                      });
+                    }
 
 
-              }).catch((e) => {
-                // alert(e)
-              })
+                }).catch((e) => {
+                  alert(e)
+                })
 
-            }
-          }).catch((e) => {
-            // alert(e)
-          })
-        } catch (e) {
-          alert(e)
-        }
+              } else {
+                self.lyricMap[name] = false;
+                self.$store.commit('saveLyricMap', self.lyricMap)
+                resolve();
+              }
+            }).catch((e) => {
+              // alert(e)
+            })
+          } catch (e) {
+            alert(e)
+          }
+        })
+
+
+        return p;
       },
       play(name, index, isFromStart, isReplay) {
         let self = this;
@@ -330,7 +362,12 @@
               window.myLrc.play();
               window.myLrc.seek(data.data.pos * 1000);
             })
-          }          
+          } else {
+             window.myLrc.stop();
+
+             self.$store.commit('setLyric', '')
+             self.curLrcLine = ''
+          }
 
           self.total = window.formatTime(s);
 

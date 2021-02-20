@@ -2,7 +2,7 @@
   <div class="scan">
     <div class="row">
       <mu-raised-button label="开始扫描" class="demo-raised-button" secondary @click="startScan" />
-      
+
       <mu-raised-button label="清空" class="demo-raised-button" secondary @click="clear" />
 
       <mu-raised-button label="执行" class="demo-raised-button" secondary @click="execute" />
@@ -41,10 +41,11 @@
       }
     },
     computed: {
-      ...mapState(['lyric', 'musicDirectory', 'allSongs', 'allAlbums', 'allSingers', 'allLyrics'])
+      ...mapState(['lyric', 'musicDirectory', 'allSongs', 'allAlbums', 'allSingers', 'allLyrics', 'lyricMap'])
     },
     mounted() {
       this.db = window.DB;
+
     },
     methods: {
       showAlbum(item) {
@@ -71,23 +72,40 @@
           });
         })
       },
-      
+
       clear() {
-        
+
         this.db.exec('DROP TABLE albums')
         this.db.exec('DROP TABLE songs')
         this.db.exec('DROP TABLE singers')
-        
-        window.location.reload();
+        // this.db.exec('DROP TABLE lyric')
+
+        // window.location.reload();
       },
 
-      execute() {
-          this.db.exec(
-            `CREATE TABLE IF NOT EXISTS lyric(
-                id INTEGER PRIMARY KEY ,
-                name TEXT NOT NULL UNIQUE,
-                content TEXT)`
-          )
+      async execute() {
+
+
+          let self = this;
+
+      console.log(this.lyricMap)
+      console.log(this.allSongs)
+
+      // return
+          // alert(self.allSongs.length)
+
+          // self.allSongs.forEach(async (item, index)=> {
+          //   if (!self.lyricMap[item.filename])
+          //   await window.$Player.getLyric(item.filename)
+          // });
+
+          for(let i = 0; i < self.allSongs.length; i++) {
+            let item = self.allSongs[i];
+            self.repeatCount++;
+            if (self.lyricMap[item.filename] === undefined)
+            await window.$Player.getLyric(item.filename)
+          }
+
       },
 
       startScan() {
@@ -124,6 +142,13 @@
             `CREATE TABLE IF NOT EXISTS singers(
                 id INTEGER PRIMARY KEY ,
                 name TEXT)`
+          )
+
+          this.db.exec(
+            `CREATE TABLE IF NOT EXISTS lyric(
+                id INTEGER PRIMARY KEY ,
+                name TEXT NOT NULL UNIQUE,
+                content TEXT)`
           )
 
           // if (self.cur >= 20) {
