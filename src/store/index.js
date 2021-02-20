@@ -4,6 +4,9 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
+
+window.today = window.formatDate('Y-m-d')
+
 const state = {
   playlist: [
     {
@@ -20,6 +23,7 @@ const state = {
   isMultiMode: false,
   isAlbumMode: false,
   isSingerMode: false,
+  isDateMode: false,
   curSinger: '',
   isFromList: false,
   curAlbum: {
@@ -45,6 +49,7 @@ const state = {
   bgOpacity: .5,
   themeColor: '',
   rankList: [],
+  dateMap: {},
   lyric: `[ti:你听得到]
 [ar:周杰伦]
 [al:叶惠美]
@@ -142,6 +147,15 @@ const mutations = {
       state.rankList = JSON.parse(data);
     }
   },
+  getDateMap(state) {
+    let data = localStorage.getItem('dateMap');
+
+    if (data) {
+      state.dateMap = JSON.parse(data);
+    }
+    if (!state.dateMap[today])
+    state.dateMap[today] = [];    
+  },
 
   getAllSongs(state) {
 
@@ -166,6 +180,7 @@ const mutations = {
       }
       state.isSingerMode = true;
       state.isAlbumMode = false;
+      state.isDateMode = false;
     })
 
   },
@@ -173,6 +188,7 @@ const mutations = {
     state.curSinger = name;
     state.isAlbumMode = true;
     state.isSingerMode = false;
+    state.isDateMode = false;
 
     window.DB.exec(`SELECT * FROM songs LEFT JOIN albums on
      songs.album_id=albums.id WHERE albums.title=?
@@ -231,6 +247,7 @@ const mutations = {
   setAlbum(state, data) {
     state.isAlbumMode = true;
     state.isSingerMode = false;
+    state.isDateMode = false;
 
     state.curAlbum.list = [];
 
@@ -244,6 +261,12 @@ const mutations = {
       Vue.set(state.curAlbum, 'title', data.title)
 
     }
+
+  },
+  setDate(state, date) {
+    state.isAlbumMode = false;
+    state.isSingerMode = false;
+    state.isDateMode = true;
 
   },
   getPlayList(state) {
@@ -526,6 +549,34 @@ const mutations = {
     }
 
     localStorage.setItem('rankList', JSON.stringify(state.rankList));
+  },
+  addDate(state, obj) {
+    let find = false;
+
+    let list = state.dateMap[today];
+
+    for (let i = 0; i < list.length; i++) {
+      let item = list[i];
+
+      if (item.name == obj.name) {
+        item.count++;
+        find = true;
+        break;
+      }
+    }
+
+    if (find === false) {
+      list.push({
+        name: obj.name,
+        count: 1
+      })
+
+      list = list.sort((a, b) => {
+        return b.count - a.count;
+      })
+    }
+
+    localStorage.setItem('dateMap', JSON.stringify(state.dateMap));
   }
 
 }
