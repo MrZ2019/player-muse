@@ -364,7 +364,7 @@
               window.myLrc && window.myLrc.seek(data.data.pos * 1000);
             })
           } else {
-             window.myLrc.stop();
+             window.myLrc && window.myLrc.stop();
 
              self.$store.commit('setLyric', '')
              self.curLrcLine = ''

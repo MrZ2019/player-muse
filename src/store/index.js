@@ -47,7 +47,8 @@ const state = {
   imageData: '',
 
   bgOpacity: .5,
-  themeColor: '',
+  // imageColor: '',
+  // pickerColor: '',
   rankList: [],
   dateMap: {},
   lyric: `[ti:你听得到]
@@ -154,7 +155,7 @@ const mutations = {
       state.dateMap = JSON.parse(data);
     }
     if (!state.dateMap[today])
-    state.dateMap[today] = [];    
+    state.dateMap[today] = [];
   },
 
   getAllSongs(state) {
@@ -340,6 +341,8 @@ const mutations = {
        state.curListIndex = state.settings.curListIndex || -1;
 
        state.bgOpacity = state.settings.bgOpacity || .5;
+       state.imageColor = state.settings.imageColor;
+       // state.pickerColor = state.settings.pickerColor || '';
        state.settings.rankTimeout = state.settings.rankTimeout || 15;
 
      }

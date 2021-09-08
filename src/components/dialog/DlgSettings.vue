@@ -5,7 +5,7 @@
       <mu-switch v-model="settings.displayCounter" :label="'显示歌曲数量'"></mu-switch>
     </mu-flex>
     <mu-flex class="select-control-row">
-      <mu-raised-button label="本地扫描" class="demo-raised-button" primary @click="goScan"/>
+      <mu-raised-button label="控制台" class="demo-raised-button" primary @click="goScan"/>
       <mu-raised-button label="背景设置" class="demo-raised-button" primary @click="goBg"/>
     </mu-flex>
 

@@ -46,7 +46,7 @@
       },1000)
     },
     computed:{
-      ...mapState(['settings', 'groupList', 'playlist', 'allSongs', 'allSingers'])
+      ...mapState(['settings', 'groupList', 'playlist', 'allSongs', 'allSingers', 'dateMap', 'rankList', 'themeColor'])
     },
     methods: {
       ...mapMutations(['renamePlayList']),
@@ -74,10 +74,16 @@
       },
 
       backup() {
+
+        // let imageColor = localStorage.getItem("imageColor");
+        // let imageData = localStorage.getItem("imageData");
         let data = {
           settings: this.settings,
           playlist: this.playlist,
-          groupList: this.groupList
+          groupList: this.groupList,
+          dateMap: this.dateMap,
+          rankList: this.rankList,
+          // imageData: imageData,
         }
 
         let name = prompt('名称', '');
@@ -131,12 +137,21 @@
 
           self.$store.state.playlist = data.playlist;
           self.$store.state.groupList = data.groupList;
+          data.settings.isFollowImage = false;
+          self.$store.commit('setImage', '')
           self.$store.state.settings = data.settings;
+          self.$store.state.dateMap = data.dateMap;
+          self.$store.state.rankList = data.rankList;
+
+
+          localStorage.setItem('dateMap', JSON.stringify(data.dateMap));
+          localStorage.setItem('rankList', JSON.stringify(data.rankList));
+          // localStorage.setItem('imageData', JSON.stringify(data.imageData));
 
           self.$store.commit('saveSettings');
           self.$store.commit('savePlayList');
           self.$store.commit('saveGroupList');
-          
+
           self.dialog = false
 
         })

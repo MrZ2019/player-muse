@@ -14,6 +14,15 @@
       本次重复数: {{repeatCount}} albums: {{allAlbums.length}}  songs: {{allSongs.length}} singers: {{allSingers.length}}  lyrics: {{allLyrics.length}}
     </div>
 
+    <div class="row">
+      <mu-raised-button label="备份歌词" class="demo-raised-button" secondary @click="backupLyric" />
+      <mu-raised-button label="恢复歌词" class="demo-raised-button" secondary @click="restoreLyric" />
+    </div>
+
+    <div class="info">
+      <!-- {{allLyrics[0]}} -->
+    </div>
+
 <!--    <div class="row cover-list">
       <span v-for="i in rows" :key="i" class="item" @click="showAlbum(i)">
         <span class="name">{{i.title}}</span>
@@ -46,8 +55,55 @@
     mounted() {
       this.db = window.DB;
 
+
     },
     methods: {
+      restoreLyric() {
+        let name = "lyric";
+        let self = this;
+
+        callplus('restore', ['lyric.txt'], async (res) => {
+          // this.getRestoreList();
+          let list = JSON.parse(JSON.parse(res.data));
+
+
+
+          this.db.exec(
+            `DELETE FROM lyric`
+          )
+
+          for (var i = 0; i < list.length; i++) {
+            let lyric = list[i];
+            let p = [lyric.name, lyric.content]
+
+            await insertLyric(p);
+          }
+
+          window.$V.message2(`恢复${list.length}条歌词`);
+
+
+          function insertLyric(params) {
+            return new Promise((r) => {
+              self.db.exec(`INSERT INTO lyric (name, content) VALUES( ?,?)`,
+              params, (data)=> {
+                // window.$V.message2(params[0])
+                r();
+              });
+            })
+          }
+        })
+      },
+      backupLyric() {
+        let name = "lyric";
+
+        let data = JSON.stringify(this.allLyrics);
+
+
+        callplus('backup', [data, name], (res) => {
+          // this.getRestoreList();
+          window.$V.message2(`备份${this.allLyrics.length}条歌词`)
+        })
+      },
       showAlbum(item) {
         let self = this;
         self.songRows = []

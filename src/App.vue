@@ -47,7 +47,7 @@
     <mu-drawer :open="open" :docked="docked" @close="toggle()">
       <mu-list @itemClick="docked ? '' : toggle()">
          <mu-list-item >当前分组: <b>{{groupList[curGroupIndex].name}}</b></mu-list-item >
-        <mu-list-item  @click.native="changeListToAll()" >全部歌曲</mu-list-item >
+        <mu-list-item  @click.native="changeListToAll()" >全部歌曲1</mu-list-item >
         <!-- <mu-list-item  @click.native="changeListToAllRandom()" >全部歌曲(随机)</mu-list-item > -->
         <mu-list-item v-for="(item, index) in curPlayList" @click="changeList(index, item)" v-if="item">{{item.name}}<span class="counter" v-if="settings.displayCounter">({{item.list.length}})</span></mu-list-item>
         <mu-list-item v-if="docked" @click.native="open = false" title="Close"/>
@@ -55,7 +55,7 @@
     </mu-drawer>
 
     <mu-dialog :open="dialog" title="主题色" @close="closePicker">
-         <mu-checkbox label="背景图片主色" v-model="isFollowImage"/>
+         <mu-checkbox label="背景图片主色" v-model="settings.isFollowImage"/>
         <picker  v-model="colors"></picker>
 
        <mu-flex class="row" style="margin: 8px 0">
@@ -103,13 +103,13 @@ export default {
       styleObj: {
         background: ''
       },
-      isFollowImage: false,
-      imageColor: '',
+      // isFollowImage: false,
+      // imageColor: '',
       curList: {list: []},
       message: '',
       toast: false,
 
-      // themeColor: '',
+      themeColor: '',
     }
   },
   computed: {
@@ -153,14 +153,9 @@ export default {
       },
 
 
-      themeColor() {
-
-        return  this.settings.isFollowImage ? this.imageColor: this.colors.hex;
-      },
       theme() {
 
-        var color = this.imageColor;
-         color = this.settings.isFollowImage ? this.imageColor: this.colors.hex;
+        var color = this.themeColor;
 
         window.theme = color;
         return (
@@ -220,32 +215,56 @@ export default {
       immediate: true,
     },
 
-    isFollowImage(val) {
+    'settings.isFollowImage'(val) {
       this.settings.isFollowImage = val;
       this.$store.commit('saveSettings');
 
     if (val) {
 
-      if (this.imageColor) {
-         this.styleObj.background = this.imageColor;
-      } else {
-
-      }
-
+      this.themeColor = this.settings.imageColor;
     } else {
-      this.styleObj.background = this.bg;
+      this.themeColor = this.settings.pickerColor;
     }
+
+    // alert(this.imageColor);
     },
 
    theme(newVal) {
 
      document.getElementById('theme').innerHTML = newVal
    },
+  themeColor(newVal) {
+    this.styleObj.background = newVal;
+  },
+  'settings.pickerColor'(val) {
+    if (!this.settings.isFollowImage) {
+      this.themeColor = val
 
+      // alert(this.themeColor)
+    }
+
+
+
+
+
+
+  },
    colors(newVal) {
+      // this.pickerColor = newVal.hex;
 
-     if (!this.settings.isFollowImage)
-     this.styleObj.background = newVal.hex;
+
+
+      this.settings.pickerColor = newVal.hex;
+
+      this.$store.commit('saveSettings')
+
+      // alert(this.settings.pickerColor)
+
+
+      // alert(newVal.hex + '123')
+
+     // if (!this.settings.isFollowImage) {
+     // this.styleObj.background = newVal.hex;
    },
 
   },
@@ -270,19 +289,21 @@ export default {
      this.$store.commit('getRank')
      this.$store.commit('getDateMap')
 
-    let bg = localStorage.getItem('background');
-    let imageColor = localStorage.getItem('imageColor');
+    // let bg = localStorage.getItem('background');
+    // let imageColor = localStorage.getItem('imageColor');
 
-    this.imageColor = imageColor;
-    this.bg = bg;
+    // alert(imageColor);
 
-    window.settingsBg = bg;
+    // this.imageColor = imageColor;
+    // this.bg = bg;
+
+    // window.settingsBg = bg;
 
     this.colors = {
-      hex: bg,
+      hex: this.settings.pickerColor
     }
 
-    this.isFollowImage = this.settings.isFollowImage;
+    // this.isFollowImage = this.settings.isFollowImage;
 
     this.message2('Hello')
 
@@ -292,7 +313,7 @@ export default {
   },
   methods: {
     ...mapMutations(['removePlayList', 'renamePlayList']),
-    
+
     clearBg() {
       this.$store.commit('clearImage')
     },
@@ -392,12 +413,12 @@ export default {
       img.src = this.imageData;
       img.onload = ()=> {
         let color = window.getImageColor(canvas,img)
-        this.imageColor = color;
+        this.settings.imageColor = color;
 
 
-        localStorage.setItem('imageColor', color)
+        // localStorage.setItem('imageColor', color)
 
-        this.styleObj.background = color;
+        // this.styleObj.background = color;
       }
     },
     closePicker() {
